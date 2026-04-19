@@ -208,3 +208,332 @@ Import trace:
   App Route:
     ./lib/db.ts
     ./app/api/tests/route.ts 
+ GET /test 500 in 16ms (next.js: 8ms, application-code: 8ms)
+ GET /test 500 in 10ms (next.js: 3ms, application-code: 8ms)
+ GET /test 500 in 14ms (next.js: 7ms, application-code: 7ms)
+ GET /test 500 in 31ms (next.js: 11ms, application-code: 19ms)
+ GET /test 500 in 18ms (next.js: 6ms, application-code: 12ms)
+ GET /test 500 in 19ms (next.js: 11ms, application-code: 9ms)
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+ GET /test 500 in 15ms (next.js: 5ms, application-code: 10ms)
+ GET /test 500 in 17ms (next.js: 4ms, application-code: 13ms)
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+ GET /test 500 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /test 500 in 17ms (next.js: 10ms, application-code: 7ms)
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+ GET /test 500 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /test 500 in 11ms (next.js: 3ms, application-code: 9ms)
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
+[browser] Uncaught Error: ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts
+
+
+    at <unknown> (Error: ./lib/db.ts:16:1)
+    at <unknown> (Error: (./lib/db.ts:16:1)
+[browser] ./lib/db.ts:16:1
+Expression expected
+  14 | }
+  15 |   globalForPrisma.prismaMain = prismaMain
+> 16 | }
+     | ^
+  17 |
+  18 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  App Route:
+    ./lib/db.ts
+    ./app/api/tests/route.ts 
