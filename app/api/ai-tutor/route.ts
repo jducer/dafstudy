@@ -2,7 +2,7 @@
 // POST → call Gemini API to explain why an answer was wrong (5th-grade level)
 
 import { NextResponse } from 'next/server'
-import { GoogleGenAI } from '@google/genai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export async function POST(request: Request) {
   try {
@@ -28,8 +28,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const ai = new GoogleGenAI(apiKey)
-    const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const systemPrompt = `
 You are a friendly, encouraging math tutor named "Sparky" who helps 5th-grade students like "Dafne".
@@ -57,14 +57,7 @@ ${body.previousHint ? `Previous Hint provided: "${body.previousHint}"` : ''}
 ${expoundMode ? 'The student needs a DEEPER explanation. Please expound on the previous logic.' : 'Please provide a hint or explanation.'}
 `.trim()
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 2000,
-      },
-    })
-
+    const result = await model.generateContent(userPrompt)
     const text = result.response.text().trim() || 'Sorry, I could not generate a hint right now.'
 
     return NextResponse.json({ hint: text })

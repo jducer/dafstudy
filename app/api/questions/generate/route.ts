@@ -29,10 +29,10 @@ export async function POST() {
       
       ACCURACY & SOLVABILITY GATE (MANDATORY):
       For EVERY question, you MUST perform a "Verification Pass":
-      1. Calculate the exact decimal value of all numbers/fractions in the question.
-      2. Verify that the 'correctAnswer' actually satisfies the question text (e.g., if you ask "Which is greater", you MUST verify the comparison is true).
-      3. Ensure that exactly ONE option is correct.
-      4. **STRICT SOLVABILITY**: You MUST NOT mention a table, chart, map, or picture in your question text unless you have provided it in the "diagramRequest". If you cannot provide the visual helper, you MUST re-write the question to be entirely text-based.
+      1. Calculate exact decimal values. Verify comparisons are 100% true.
+      2. Ensure exactly ONE option is correct. YOU MUST perform a "Distractor Audit": Verify that the 3 incorrect options are 100% mathematically false based on the prompt.
+      3. **STRICT SOLVABILITY**: You MUST NOT mention a table, chart, map, or picture in your question text unless you have provided it in the "diagramRequest".
+      4. **VISUAL SINGLE-SHOT**: Since we only show ONE diagram per question, do not ask "Which fraction box..." or "Which of these charts..." if you are comparing 4 different visuals. If you want a visual comparison, you MUST build one consolidated diagram (e.g., a single line plot or bar chart) and ask a question about it.
       
       TEST STRUCTURE:
       - RATIO: Exactly 8 questions MUST be 'single-choice'. Exactly 2 questions MUST be 'free-response' or 'multiple-select'.
