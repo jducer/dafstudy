@@ -35,7 +35,7 @@ export async function POST() {
       4. Avoid "trick" questions unless they are standard-aligned.
       
       TEST STRUCTURE:
-      - RATIO: 7-8 questions MUST be 'single-choice'.
+      - RATIO: Exactly 8 questions MUST be 'single-choice'. Exactly 2 questions MUST be 'free-response' or 'multiple-select'.
       - DIAGRAMS: Use them for at least 6 questions (DP, GR, FR standards).
       
       DIAGRAM SCHEMAS (REQUIRED PROPERTIES):
