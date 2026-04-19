@@ -30,3 +30,25 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to fetch test' }, { status: 500 })
   }
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const testId = parseInt(id, 10)
+    if (isNaN(testId)) {
+      return NextResponse.json({ error: 'Invalid test ID' }, { status: 400 })
+    }
+
+    await prismaMain.testResult.delete({
+      where: { id: testId },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('DELETE /api/tests/[id] error:', err)
+    return NextResponse.json({ error: 'Failed to delete test' }, { status: 500 })
+  }
+}

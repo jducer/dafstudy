@@ -34,5 +34,6 @@ model QuestionAnswer {
   rectifiedAnswer String?
   diagramType     String?
   diagramContent  String?
+  optionsJson     String?
   questionType    String     @default("single-choice")
 }

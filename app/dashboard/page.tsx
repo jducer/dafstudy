@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const [tests, setTests] = useState<TestSummary[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  const fetchTests = () => {
     fetch('/api/tests')
       .then((r) => r.json())
       .then((data) => {
@@ -37,7 +37,26 @@ export default function DashboardPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchTests()
   }, [])
+
+  const handleDelete = async (e: React.MouseEvent, id: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!confirm('Are you sure you want to delete this test?')) return
+
+    try {
+      const res = await fetch(`/api/tests/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setTests((prev) => prev.filter((t) => t.id !== id))
+      }
+    } catch (err) {
+      console.error('Delete failed:', err)
+    }
+  }
 
   const avgScore =
     tests.length > 0
@@ -161,11 +180,21 @@ export default function DashboardPage() {
                           ↑ Now {currentPct}% after rectification
                         </div>
                       )}
-                      <Link href={`/review/${test.id}`}>
-                        <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '0.875rem' }}>
-                          🔍 Review
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button 
+                          onClick={(e) => handleDelete(e, test.id)}
+                          className="btn-secondary" 
+                          style={{ padding: '8px 12px', fontSize: '0.875rem', color: 'var(--accent-red)', borderColor: 'rgba(239,71,111,0.2)' }}
+                          title="Delete test"
+                        >
+                          🗑️
                         </button>
-                      </Link>
+                        <Link href={`/review/${test.id}`}>
+                          <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '0.875rem' }}>
+                            🔍 Review
+                          </button>
+                        </Link>
+                      </div>
                     </div>
                   </div>
 

@@ -22,7 +22,7 @@ export default function TestPage() {
   const allAnswered = questions.length > 0 && answeredCount === questions.length
 
   const startTest = useCallback(() => {
-    const qs = getRandomQuestions(40)
+    const qs = getRandomQuestions(10)
     console.log("Random questions fetched:", qs.length, qs)
     setQuestions(qs)
     setAnswers({})

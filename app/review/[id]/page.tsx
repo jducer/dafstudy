@@ -45,6 +45,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
   const [loading, setLoading] = useState(true)
   const [hints, setHints] = useState<HintState>({})
   const [rectify, setRectify] = useState<RectifyState>({})
+  const [shownAnswers, setShownAnswers] = useState<Record<number, boolean>>({}) // answerId -> boolean
   const [filter, setFilter] = useState<'all' | 'wrong' | 'correct'>('all')
 
   useEffect(() => {
@@ -57,13 +58,20 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
       .catch(() => setLoading(false))
   }, [id])
 
-  const askSparky = async (answer: QuestionAnswer) => {
+  const askSparky = async (answer: QuestionAnswer, explainMode = false) => {
     setHints((prev) => ({
       ...prev,
       [answer.id]: { loading: true, text: null, error: null },
     }))
 
     try {
+      let options: string[] = []
+      try {
+        if ((answer as any).optionsJson) {
+          options = JSON.parse((answer as any).optionsJson)
+        }
+      } catch (e) {}
+
       const res = await fetch('/api/ai-tutor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -71,7 +79,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
           questionText: answer.questionText,
           correctAnswer: answer.correctAnswer,
           userAnswer: answer.userAnswer,
-          options: [], // options not stored in DB, pass empty
+          options,
+          explainMode,
         }),
       })
       const data = await res.json()
@@ -87,6 +96,12 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         [answer.id]: { loading: false, text: null, error: msg },
       }))
     }
+  }
+
+  const handleShowAnswer = (answer: QuestionAnswer) => {
+    setShownAnswers(prev => ({ ...prev, [answer.id]: true }))
+    // Automatically trigger Sparky explanation
+    askSparky(answer, true)
   }
 
   const handleRectifySelect = (answerId: number, option: string) => {
@@ -319,23 +334,25 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
               {/* Answer display */}
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: answer.isCorrect ? 0 : '16px' }}>
-                <div style={{
-                  padding: '10px 16px', borderRadius: '10px', background: 'rgba(6,214,160,0.1)', border: '1px solid rgba(6,214,160,0.3)', flex: 1, minWidth: '140px',
-                }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#06d6a0', marginBottom: '4px', textTransform: 'uppercase' }}>✅ Correct Answer</div>
-                  <div style={{ fontWeight: 700, color: '#06d6a0', whiteSpace: 'pre-wrap' }}>
-                    {(() => {
-                      try {
-                        if (answer.questionType === 'multiple-select') return JSON.parse(answer.correctAnswer).join(', ')
-                        if (answer.questionType === 'two-part') {
-                          const p = JSON.parse(answer.correctAnswer)
-                          return `Part A: ${p.partA}\nPart B: ${p.partB}`
-                        }
-                      } catch (e) {}
-                      return answer.correctAnswer
-                    })()}
+                {(answer.isCorrect || shownAnswers[answer.id]) && (
+                  <div style={{
+                    padding: '10px 16px', borderRadius: '10px', background: 'rgba(6,214,160,0.1)', border: '1px solid rgba(6,214,160,0.3)', flex: 1, minWidth: '140px',
+                  }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#06d6a0', marginBottom: '4px', textTransform: 'uppercase' }}>✅ Correct Answer</div>
+                    <div style={{ fontWeight: 700, color: '#06d6a0', whiteSpace: 'pre-wrap' }}>
+                      {(() => {
+                        try {
+                          if (answer.questionType === 'multiple-select') return JSON.parse(answer.correctAnswer).join(', ')
+                          if (answer.questionType === 'two-part') {
+                            const p = JSON.parse(answer.correctAnswer)
+                            return `Part A: ${p.partA}\nPart B: ${p.partB}`
+                          }
+                        } catch (e) {}
+                        return answer.correctAnswer
+                      })()}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {!answer.isCorrect && (
                   <div style={{
@@ -376,16 +393,28 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
               {/* Sparky / Rectify section (only for wrong, non-rectified) */}
               {needsRectify && (
                 <div>
-                  {/* Ask Sparky button */}
-                  {!hint && (
-                    <button
-                      className="btn-secondary"
-                      onClick={() => askSparky(answer)}
-                      style={{ fontSize: '0.875rem', padding: '9px 18px', marginBottom: '12px' }}
-                    >
-                      🤖 Ask Sparky for a Hint
-                    </button>
-                  )}
+                  {/* Action buttons */}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                    {!hint && !shownAnswers[answer.id] && (
+                      <button
+                        className="btn-secondary"
+                        onClick={() => askSparky(answer, false)}
+                        style={{ fontSize: '0.875rem', padding: '9px 18px' }}
+                      >
+                        🤖 Ask Sparky for a Hint
+                      </button>
+                    )}
+                    
+                    {!shownAnswers[answer.id] && (
+                      <button
+                        className="btn-secondary"
+                        onClick={() => handleShowAnswer(answer)}
+                        style={{ fontSize: '0.875rem', padding: '9px 18px', background: 'rgba(255,255,255,0.05)' }}
+                      >
+                        👁️ Show me the answer
+                      </button>
+                    )}
+                  </div>
 
                   {/* Hint display */}
                   {hint?.loading && (
