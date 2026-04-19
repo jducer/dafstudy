@@ -21,7 +21,7 @@ const standards = [
 
 export async function POST() {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
     
     const prompt = `
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
@@ -64,10 +64,14 @@ export async function POST() {
       
       Respond ONLY with the JSON array.
     `.trim()
-
+    
     const result = await model.generateContent(prompt)
-    const text = (await result.response).text().replace(/```json|```/g, '').trim()
-    const rawQuestions = JSON.parse(text)
+    const responseText = result.response.text()
+    
+    // Robust JSON extraction
+    const jsonMatch = responseText.match(/\[[\s\S]*\]/)
+    const cleanJson = jsonMatch ? jsonMatch[0] : responseText
+    const rawQuestions = JSON.parse(cleanJson)
 
     // PROCESS DIAGRAMS
     const questions = rawQuestions.map((q: any) => {
