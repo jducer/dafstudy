@@ -76,15 +76,19 @@ export function drawPolygon(points: [number, number][], attrs: string = ''): str
 /**
  * Returns an SVG of a simple bar chart.
  */
-export function drawBarChart(data: { label: string; value: number }[], yMax: number): string {
+export function drawBarChart(data: { label: string; value: number }[], yMaxInput?: number): string {
   const width = 300
   const height = 150
   const paddingX = 40
   const paddingY = 20
   
+  // Calculate a safe yMax if missing
+  const maxValInData = Math.max(...data.map(d => d.value), 1)
+  const yMax = yMaxInput || Math.ceil(maxValInData * 1.2)
+
   const chartWidth = width - paddingX * 2
   const chartHeight = height - paddingY * 2
-  const barWidth = chartWidth / data.length - 10
+  const barWidth = chartWidth / Math.max(data.length, 1) - 10
   
   let bars = ''
   let xAxis = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX + 20}" y2="${height - paddingY}" stroke="currentColor" stroke-width="2"/>`
@@ -183,7 +187,11 @@ export function drawNumberLinePlot(points: { value: number; count: number }[], m
 /**
  * Returns an SVG of a 3D rectangular prism made of unit cubes.
  */
-export function draw3DCubeStack(width: number, height: number, depth: number): string {
+export function draw3DCubeStack(widthInput: number, heightInput: number, depthInput: number): string {
+  const width = widthInput || 1
+  const height = heightInput || 1
+  const depth = depthInput || 1
+  
   const size = 30
   const offset = 12
   const svgWidth = (width + depth) * size + 50

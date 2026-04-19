@@ -38,6 +38,14 @@ export async function POST() {
       - RATIO: 7-8 questions MUST be 'single-choice'.
       - DIAGRAMS: Use them for at least 6 questions (DP, GR, FR standards).
       
+      DIAGRAM SCHEMAS (REQUIRED PROPERTIES):
+      - coordinatePlane: { "helper": "coordinatePlane", "points": [{ "x": number, "y": number, "label": string }] }
+      - polygon: { "helper": "polygon", "points": [[x,y], [x,y], [x,y]] }
+      - barChart: { "helper": "barChart", "data": [{ "label": string, "value": number }], "yMax": number }
+      - fractionBox: { "helper": "fractionBox", "numerator": number, "denominator": number }
+      - numberLinePlot: { "helper": "numberLinePlot", "points": [{ "value": num, "count": num }], "minVal": num, "maxVal": num, "step": num }
+      - cubeStack: { "helper": "cubeStack", "width": num, "height": num, "depth": num }
+
       JSON FORMAT (STRICT):
       [
         {
@@ -47,12 +55,10 @@ export async function POST() {
           "text": "...",
           "options": ["A", "B", "C", "D"], 
           "correctAnswer": "Exact matching string", 
-          "diagramRequest": { "helper": "...", ...args },
+          "diagramRequest": { "helper": "...", ...REQUIRED_ARGS_LISTED_ABOVE },
           "explanation": "Detailed step-by-step logic..."
         }
       ]
-      
-      AVAILABLE HELPERS: coordinatePlane, polygon, barChart, fractionBox, numberLinePlot, cubeStack.
 
       FINAL STEP: Do not return incorrect math. If a fraction comparison is involved, verify it now: 2/5 = 0.4. 3/8 = 0.375. 3/8 is NOT greater than 2/5. DO NOT make this mistake.
       
