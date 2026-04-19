@@ -137,3 +137,78 @@ export function drawFractionBox(numerator: number, denominator: number): string 
     </svg>
   `
 }
+
+/**
+ * Returns an SVG of a number line plot with X marks above the numbers.
+ */
+export function drawNumberLinePlot(points: { value: number; count: number }[], minVal: number, maxVal: number, step: number = 1): string {
+  const width = 450
+  const height = 180
+  const paddingX = 30
+  const paddingY = 40
+  const chartWidth = width - paddingX * 2
+  
+  const span = maxVal - minVal
+  const segments = span / step
+  const segmentWidth = chartWidth / segments
+
+  let line = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX}" y2="${height - paddingY}" stroke="currentColor" stroke-width="2"/>`
+  let ticks = ''
+  let marks = ''
+
+  for (let i = 0; i <= segments; i++) {
+    const x = paddingX + i * segmentWidth
+    const val = minVal + i * step
+    ticks += `<line x1="${x}" y1="${height - paddingY - 5}" x2="${x}" y2="${height - paddingY + 5}" stroke="currentColor" stroke-width="2"/>`
+    ticks += `<text x="${x}" y="${height - paddingY + 20}" fill="currentColor" font-size="12" text-anchor="middle" font-weight="bold">${val}</text>`
+  }
+
+  points.forEach((p) => {
+    const x = paddingX + ((p.value - minVal) / span) * chartWidth
+    for (let i = 0; i < p.count; i++) {
+      const y = height - paddingY - 15 - i * 15
+      marks += `<text x="${x}" y="${y}" fill="${svgConfig.accent}" font-size="14" text-anchor="middle" font-weight="bold">x</text>`
+    }
+  })
+
+  return `
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="200" xmlns="http://www.w3.org/2000/svg">
+      ${line}
+      ${ticks}
+      ${marks}
+    </svg>
+  `
+}
+
+/**
+ * Returns an SVG of a 3D rectangular prism made of unit cubes.
+ */
+export function draw3DCubeStack(width: number, height: number, depth: number): string {
+  const size = 30
+  const offset = 12
+  const svgWidth = (width + depth) * size + 50
+  const svgHeight = height * size + depth * offset + 50
+  
+  let cubes = ''
+  
+  for(let z = depth - 1; z >= 0; z--) {
+    for(let y = 0; y < height; y++) {
+      for(let x = 0; x < width; x++) {
+        const px = 20 + x * size + (depth - 1 - z) * offset
+        const py = svgHeight - 20 - (y + 1) * size - (depth - 1 - z) * offset
+        
+        const front = `<rect x="${px}" y="${py}" width="${size}" height="${size}" fill="rgba(79,142,247,0.3)" stroke="${svgConfig.accent}" stroke-width="1.5" stroke-linejoin="round"/>`
+        const top = `<polygon points="${px},${py} ${px+offset},${py-offset} ${px+size+offset},${py-offset} ${px+size},${py}" fill="rgba(79,142,247,0.5)" stroke="${svgConfig.accent}" stroke-width="1.5" stroke-linejoin="round"/>`
+        const right = `<polygon points="${px+size},${py} ${px+size+offset},${py-offset} ${px+size+offset},${py+size-offset} ${px+size},${py+size}" fill="rgba(79,142,247,0.2)" stroke="${svgConfig.accent}" stroke-width="1.5" stroke-linejoin="round"/>`
+        
+        cubes += top + front + right
+      }
+    }
+  }
+
+  return `
+    <svg viewBox="0 0 ${svgWidth} ${svgHeight}" width="100%" height="220" xmlns="http://www.w3.org/2000/svg">
+      ${cubes}
+    </svg>
+  `
+}
