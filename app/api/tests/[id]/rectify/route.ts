@@ -51,24 +51,23 @@ export async function POST(
       const apiKey = process.env.GEMINI_API_KEY
       if (apiKey) {
         try {
-          const { GoogleGenAI } = await import('@google/genai')
-          const ai = new GoogleGenAI(apiKey)
-          const model = ai.models.get({ model: 'gemini-2.5-flash' })
+          const { GoogleGenerativeAI } = await import('@google/generative-ai')
+          const ai = new GoogleGenerativeAI(apiKey)
+          const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
           
           const prompt = `
-            You are a math grading assistant for a 5th-grade student.
+            You are a math grading assistant for a 5th-grade student "Dafne".
             Question: "${existing.questionText}"
             Answer Key: "${existing.correctAnswer}"
             Student's New Answer: "${newAnswer}"
             
             GRADING RULES:
             1. MATHEMATICAL INTENT: If the student clearly knows the correct answer, mark YES.
-            2. TYPOS: Ignore commas/periods for decimals (1,75 = 1.75).
-            3. LETTERS: For multiple-choice or select questions, if they type the letters (e.g. "a and c") or names of the correct options, mark YES.
-            4. FORMATTING: Ignore case, trailing spaces, or punctuation differences.
+            2. ORDER: For sets of answers, the order does not matter.
+            3. TYPOS: Ignore commas/periods for decimals (1,75 = 1.75).
+            4. LETTERS: For multiple-choice or select questions, if they type the letters (e.g. "a and c") or names of the correct options, mark YES.
             
-            Is the student's new answer correct?
-            Respond with ONLY "YES" or "NO".
+            Is the student's new answer correct? Respond ONLY with "YES" or "NO".
           `.trim()
           
           const result = await model.generateContent(prompt)
@@ -77,7 +76,7 @@ export async function POST(
             isCorrect = true
           }
         } catch (err) {
-          console.error('AI Grading failed, falling back to strict:', err)
+          console.error('AI Grading failed in rectification:', err)
         }
       }
     }

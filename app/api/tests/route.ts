@@ -49,11 +49,19 @@ export async function POST(request: Request) {
         if (qType === 'multiple-select' || qType === 'two-part') {
           const userParsed = JSON.parse(a.userAnswer)
           const correctParsed = JSON.parse(a.correctAnswer)
-          isCorrect = JSON.stringify(userParsed) === JSON.stringify(correctParsed)
+          
+          if (Array.isArray(userParsed) && Array.isArray(correctParsed)) {
+            // Sort both arrays to ignore order differences
+            const u = [...userParsed].sort()
+            const c = [...correctParsed].sort()
+            isCorrect = JSON.stringify(u) === JSON.stringify(c)
+          } else {
+            isCorrect = JSON.stringify(userParsed) === JSON.stringify(correctParsed)
+          }
         } else {
           const safeUser = a.userAnswer ? String(a.userAnswer).trim().toLowerCase() : ''
           const safeCorrect = a.correctAnswer ? String(a.correctAnswer).trim().toLowerCase() : ''
-          isCorrect = safeUser === safeCorrect && safeCorrect !== ''
+          isCorrect = (safeUser === safeCorrect && safeCorrect !== '')
         }
       } catch (e) {
         const safeUserStr = a.userAnswer ? String(a.userAnswer).trim().toLowerCase() : ''
@@ -61,30 +69,35 @@ export async function POST(request: Request) {
         isCorrect = safeUserStr === safeCorrectStr && safeCorrectStr !== ''
       }
 
-      // --- AI SECOND PASS for Free Response ---
-      if (!isCorrect && qType === 'free-response' && a.userAnswer) {
+      // --- AI SECOND PASS for all types if first pass failed ---
+      if (!isCorrect && a.userAnswer) {
         const apiKey = process.env.GEMINI_API_KEY
         if (apiKey) {
           try {
-            const { GoogleGenAI } = await import('@google/genai')
-            const ai = new GoogleGenAI(apiKey)
-            const model = ai.models.get({ model: 'gemini-2.5-flash' })
+            const { GoogleGenerativeAI } = await import('@google/generative-ai')
+            const ai = new GoogleGenerativeAI(apiKey)
+            const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
             const prompt = `
-              As a math tutor, check if the student is correct.
+              You are grading a 5th-grade math test for "Dafne".
               Question: "${a.questionText}"
               Key: "${a.correctAnswer}"
-              Student: "${a.userAnswer}"
+              Student Answer: "${a.userAnswer}"
+              Type: "${qType}"
               
               RULES:
-              1. Accept letters (e.g. "a") or name of option.
-              2. Accept commas for decimals.
-              3. Ignore minor spacing/punctuation.
+              1. For multiple-select/multiple-choice: The ORDER of selected items does NOT matter.
+              2. Accept partial matches if the intent is clearly correct (e.g., student typed "A" instead of the full text).
+              3. Ignore minor spacing, punctuation, or case.
+              4. For numbers: 1.75 is the same as 1,75.
               
-              Is the student correct? YES or NO.
+              Is the student correct? Respond ONLY with "YES" or "NO".
             `.trim()
             const result = await model.generateContent(prompt)
-            if ((await result.response).text().toUpperCase().includes('YES')) isCorrect = true
-          } catch {}
+            const aiResponse = (await result.response).text().toUpperCase()
+            if (aiResponse.includes('YES')) isCorrect = true
+          } catch (e) {
+            console.error('Grading AI error:', e)
+          }
         }
       }
 
