@@ -4,6 +4,15 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
+import { 
+  drawCoordinatePlane, 
+  drawPolygon, 
+  drawBarChart, 
+  drawFractionBox, 
+  drawNumberLinePlot, 
+  draw3DCubeStack 
+} from '@/lib/diagrams'
+
 const standards = [
   'MA.5.NSO.2.4', 'MA.5.NSO.2.5', 'MA.5.GR.3.1', 'MA.5.AR.1.1',
   'MA.5.FR.1.1', 'MA.5.M.2.1', 'MA.5.AR.2.1', 'MA.5.AR.2.2',
@@ -19,6 +28,16 @@ export async function POST() {
       Create 10 fresh, high-quality math questions for the student "Dafne".
       Target these struggle standards: ${standards.join(', ')}.
       
+      SVG DIAGRAMS:
+      If a question needs a visual (Data, Geometry, Fractions), include a "diagramRequest" object.
+      Choose ONE from these helpers:
+      1. { "helper": "coordinatePlane", "points": [{ "x": 2, "y": 3, "label": "A" }] }
+      2. { "helper": "polygon", "points": [[10,10], [90,10], [50,80]] }
+      3. { "helper": "barChart", "data": [{ "label": "X", "value": 10 }], "yMax": 15 }
+      4. { "helper": "fractionBox", "numerator": 3, "denominator": 4 }
+      5. { "helper": "numberLinePlot", "points": [{ "value": 1.5, "count": 2 }], "minVal": 0, "maxVal": 5, "step": 0.5 }
+      6. { "helper": "cubeStack", "width": 4, "height": 3, "depth": 2 }
+
       JSON FORMAT RULES:
       [
         {
@@ -26,26 +45,45 @@ export async function POST() {
           "standard": "MA.5.GR.3.1",
           "type": "single-choice" | "multiple-select" | "free-response",
           "text": "Question text...",
-          "options": ["A", "B", "C", "D"], // FOR choice/select ONLY
-          "correctAnswer": "Exact string matching one of the options", // FOR single/free
-          "correctAnswers": ["A", "C"], // FOR multiple-select ONLY
+          "options": ["A", "B", "C", "D"], 
+          "correctAnswer": "Exact string matching one of the options", 
+          "correctAnswers": ["A", "C"], 
+          "diagramRequest": { ... }, // OPTIONAL
           "explanation": "Step-by-step logic..."
         }
       ]
       
-      CRITICAL QUALITY GATE:
-      1. For "single-choice": The "correctAnswer" MUST be EXACTLY IDENTICAL to one of the strings in "options".
-      2. For "multiple-select": ALL strings in "correctAnswers" MUST be EXACTLY IDENTICAL to strings in "options".
-      3. For "free-response": Provide only the numeric or most concise answer.
-      4. DO NOT use placeholders or diagrams (set diagram: null).
-      5. DOUBLE CHECK: Before finishing, verify that the correct solution is actually present in the options list.
-      
+      CRITICAL: Verify math is correct. Match B.E.S.T. difficulty level.
       Respond only with the JSON array.
     `.trim()
 
     const result = await model.generateContent(prompt)
     const text = (await result.response).text().replace(/```json|```/g, '').trim()
-    const questions = JSON.parse(text)
+    const rawQuestions = JSON.parse(text)
+
+    // PROCESS DIAGRAMS
+    const questions = rawQuestions.map((q: any) => {
+      let diagram = null
+      if (q.diagramRequest) {
+        const { helper, ...args } = q.diagramRequest
+        let content = ''
+        try {
+          if (helper === 'coordinatePlane') content = drawCoordinatePlane(args.points)
+          else if (helper === 'polygon') content = drawPolygon(args.points)
+          else if (helper === 'barChart') content = drawBarChart(args.data, args.yMax)
+          else if (helper === 'fractionBox') content = drawFractionBox(args.numerator, args.denominator)
+          else if (helper === 'numberLinePlot') content = drawNumberLinePlot(args.points, args.minVal, args.maxVal, args.step)
+          else if (helper === 'cubeStack') content = draw3DCubeStack(args.width, args.height, args.depth)
+          
+          if (content) {
+            diagram = { type: 'svg', content }
+          }
+        } catch (e) {
+          console.error('Diagram gen failed for:', q.id, e)
+        }
+      }
+      return { ...q, diagram }
+    })
 
     return NextResponse.json(questions)
   } catch (err) {
