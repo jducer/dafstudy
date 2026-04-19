@@ -25,40 +25,37 @@ export async function POST() {
     
     const prompt = `
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
-      Your task is to generate 10 rigorous questions for "Dafne".
+      Your task is to generate 10 rigorous, mathematically perfect questions for "Dafne".
       
-      TEST STRUCTURE RULES:
-      1. RATIO: Exactly 7-8 questions MUST be 'single-choice'. Only 2-3 can be 'free-response' or 'multiple-select'.
-      2. STANDARDS: Focus heavily on these struggle areas: ${standards.join(', ')}.
-      3. DIAGRAMS (MANDATORY): You MUST include a "diagramRequest" for at least 6 out of 10 questions.
-         - For MA.5.DP (Data): Use "barChart" or "numberLinePlot".
-         - For MA.5.GR (Geometry): Use "polygon", "coordinatePlane", or "cubeStack".
-         - For MA.5.FR (Fractions): Use "fractionBox".
+      ACCURACY GATE (MANDATORY):
+      For EVERY question, you MUST perform a "Verification Pass":
+      1. Calculate the exact decimal value of all numbers/fractions in the question.
+      2. Verify that the 'correctAnswer' actually satisfies the question text (e.g., if you ask "Which is greater", you MUST verify the comparison is true).
+      3. Ensure that exactly ONE option is correct.
+      4. Avoid "trick" questions unless they are standard-aligned.
+      
+      TEST STRUCTURE:
+      - RATIO: 7-8 questions MUST be 'single-choice'.
+      - DIAGRAMS: Use them for at least 6 questions (DP, GR, FR standards).
       
       JSON FORMAT (STRICT):
       [
         {
           "id": "DYNA-[unique-id]",
-          "standard": "MA.5.GR.3.1",
+          "standard": "...",
           "type": "single-choice" | "multiple-select" | "free-response",
-          "text": "Question text...",
-          "options": ["Option 1", "Option 2", "Option 3", "Option 4"], 
-          "correctAnswer": "Required if type is single-choice or free-response", 
-          "correctAnswers": ["Only if type is multiple-select"], 
-          "diagramRequest": { "helper": "[helper-name]", ...args },
-          "explanation": "..."
+          "text": "...",
+          "options": ["A", "B", "C", "D"], 
+          "correctAnswer": "Exact matching string", 
+          "diagramRequest": { "helper": "...", ...args },
+          "explanation": "Detailed step-by-step logic..."
         }
       ]
       
-      AVAILABLE HELPERS:
-      - coordinatePlane: { "points": [{ "x": number, "y": number, "label": string }] }
-      - polygon: { "points": [[x,y], [x,y]] } // 0-100 range
-      - barChart: { "data": [{ "label": string, "value": number }], "yMax": number }
-      - fractionBox: { "numerator": number, "denominator": number }
-      - numberLinePlot: { "points": [{ "value": num, "count": num }], "minVal": num, "maxVal": num, "step": num }
-      - cubeStack: { "width": num, "height": num, "depth": num }
+      AVAILABLE HELPERS: coordinatePlane, polygon, barChart, fractionBox, numberLinePlot, cubeStack.
 
-      CRITICAL: The "correctAnswer" MUST be exactly present in the "options" list.
+      FINAL STEP: Do not return incorrect math. If a fraction comparison is involved, verify it now: 2/5 = 0.4. 3/8 = 0.375. 3/8 is NOT greater than 2/5. DO NOT make this mistake.
+      
       Respond ONLY with the JSON array.
     `.trim()
 
