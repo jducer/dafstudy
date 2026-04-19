@@ -62,17 +62,26 @@ export async function POST(request: Request) {
           // Simple deep equality for flat arrays or simple objects
           isCorrect = JSON.stringify(userParsed) === JSON.stringify(correctParsed)
         } else {
-          isCorrect = a.userAnswer.trim().toLowerCase() === a.correctAnswer.trim().toLowerCase()
+          const safeUser = a.userAnswer ? String(a.userAnswer).trim().toLowerCase() : ''
+          const safeCorrect = a.correctAnswer ? String(a.correctAnswer).trim().toLowerCase() : ''
+          isCorrect = safeUser === safeCorrect && safeCorrect !== ''
         }
       } catch (e) {
         // Fallback to strict string check if parsing fails
-        isCorrect = a.userAnswer.trim().toLowerCase() === a.correctAnswer.trim().toLowerCase()
+        const safeUserStr = a.userAnswer ? String(a.userAnswer).trim().toLowerCase() : ''
+        const safeCorrectStr = a.correctAnswer ? String(a.correctAnswer).trim().toLowerCase() : ''
+        isCorrect = safeUserStr === safeCorrectStr && safeCorrectStr !== ''
       }
 
       return {
-        ...a,
-        isCorrect,
+        questionId: a.questionId,
+        questionText: a.questionText,
+        correctAnswer: a.correctAnswer,
+        userAnswer: a.userAnswer,
+        diagramType: a.diagramType || null,
+        diagramContent: a.diagramContent || null,
         questionType: qType,
+        isCorrect,
         isRectified: false,
         rectifiedAnswer: null,
       }
