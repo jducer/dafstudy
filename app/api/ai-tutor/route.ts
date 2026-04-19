@@ -56,7 +56,7 @@ Please follow the system instructions exactly: explain what the student likely m
       config: {
         systemInstruction: systemPrompt,
         temperature: 0.7,
-        maxOutputTokens: 300,
+        maxOutputTokens: 1000,
       },
     })
 
