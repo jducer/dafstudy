@@ -54,7 +54,7 @@ export default function HomePage() {
         }}>
           <span className="gradient-text">Dafne&apos;s Math Portal</span>
           <br />
-          <span style={{ color: 'var(--text-primary)' }}>Mastering 5th Grade</span>
+          <span style={{ color: 'var(--text-primary)', fontSize: '0.65em' }}>Mastering B.E.S.T. Math Test for 5th Grade</span>
         </h1>
 
         <p style={{
