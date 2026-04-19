@@ -7,6 +7,6 @@ import { defineConfig } from 'prisma/config'
 export default defineConfig({
   schema: path.join(__dirname, 'prisma/main/schema.prisma'),
   datasource: {
-    url: `file:${path.join(__dirname, 'prisma/main/dev.db')}`,
+    url: process.env.DATABASE_URL || '',
   },
 })
