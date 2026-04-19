@@ -91,12 +91,15 @@ export default function TestPage() {
       const payload = questions.map((q) => {
         let correctValueStr = ''
         if (q.type === 'multiple-select') {
-          correctValueStr = JSON.stringify(q.correctAnswers)
+          correctValueStr = JSON.stringify((q as any).correctAnswers || (q as any).correctAnswer || [])
         } else if (q.type === 'two-part') {
-          correctValueStr = JSON.stringify({ partA: q.partA.correctAnswer, partB: q.partB.correctAnswer })
+          correctValueStr = JSON.stringify({ 
+            partA: (q as any).partA?.correctAnswer || '', 
+            partB: (q as any).partB?.correctAnswer || '' 
+          })
         } else {
           // single-choice or free-response
-          correctValueStr = (q as any).correctAnswer ?? ''
+          correctValueStr = String((q as any).correctAnswer ?? '')
         }
 
         let questionText = q.text

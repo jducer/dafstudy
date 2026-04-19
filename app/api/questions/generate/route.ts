@@ -40,10 +40,11 @@ export async function POST() {
         {
           "id": "DYNA-[unique-id]",
           "standard": "MA.5.GR.3.1",
-          "type": "single-choice",
+          "type": "single-choice" | "multiple-select" | "free-response",
           "text": "Question text...",
-          "options": ["A", "B", "C", "D"], 
-          "correctAnswer": "A", 
+          "options": ["Option 1", "Option 2", "Option 3", "Option 4"], 
+          "correctAnswer": "Required if type is single-choice or free-response", 
+          "correctAnswers": ["Only if type is multiple-select"], 
           "diagramRequest": { "helper": "[helper-name]", ...args },
           "explanation": "..."
         }
