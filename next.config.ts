@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  // Allow native modules to bundle correctly on the server
+  serverExternalPackages: ['better-sqlite3'],
+}
 
-export default nextConfig;
+export default nextConfig

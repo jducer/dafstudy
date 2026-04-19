@@ -1,0 +1,35 @@
+// prisma/main/schema.prisma
+// Main schema for the DAF Study app - holds test results and question history
+// NOTE: No url property per Prisma 7.x requirement. Connection URL passed dynamically via datasourceUrl.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../lib/generated/main"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model TestResult {
+  id               Int              @id @default(autoincrement())
+  createdAt        DateTime         @default(now())
+  totalQuestions   Int
+  originalScore    Int
+  currentScore     Int
+  isFullyRectified Boolean          @default(false)
+  answers          QuestionAnswer[]
+}
+
+model QuestionAnswer {
+  id              Int        @id @default(autoincrement())
+  testResultId    Int
+  testResult      TestResult @relation(fields: [testResultId], references: [id], onDelete: Cascade)
+  questionId      String
+  questionText    String
+  correctAnswer   String
+  userAnswer      String
+  isCorrect       Boolean
+  isRectified     Boolean    @default(false)
+  rectifiedAnswer String?
+}

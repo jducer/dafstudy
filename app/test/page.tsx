@@ -1,0 +1,284 @@
+'use client'
+// app/test/page.tsx — Take the 40-question randomized test
+
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { getRandomQuestions, Question } from '@/lib/questions'
+
+type Answers = Record<string, string> // questionId -> selectedOption
+
+export default function TestPage() {
+  const router = useRouter()
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [answers, setAnswers] = useState<Answers>({})
+  const [currentPage, setCurrentPage] = useState(0) // current "page" of 5 questions
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [testStarted, setTestStarted] = useState(false)
+
+  const QUESTIONS_PER_PAGE = 5
+  const totalPages = Math.ceil(questions.length / QUESTIONS_PER_PAGE)
+  const answeredCount = Object.keys(answers).length
+  const allAnswered = questions.length > 0 && answeredCount === questions.length
+
+  const startTest = useCallback(() => {
+    setQuestions(getRandomQuestions(40))
+    setAnswers({})
+    setCurrentPage(0)
+    setTestStarted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!testStarted) {
+      startTest()
+      setTestStarted(true)
+    }
+  }, [testStarted, startTest])
+
+  const currentQuestions = questions.slice(
+    currentPage * QUESTIONS_PER_PAGE,
+    (currentPage + 1) * QUESTIONS_PER_PAGE
+  )
+
+  const handleSelect = (questionId: string, option: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: option }))
+  }
+
+  const handleSubmit = async () => {
+    if (!allAnswered) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      const payload = questions.map((q) => ({
+        questionId: q.id,
+        questionText: q.text,
+        correctAnswer: q.correctAnswer,
+        userAnswer: answers[q.id] ?? '',
+        options: q.options,
+      }))
+
+      const res = await fetch('/api/tests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: payload }),
+      })
+
+      if (!res.ok) throw new Error('Submission failed')
+      const data = await res.json()
+      router.push(`/review/${data.id}`)
+    } catch (e) {
+      setError('Something went wrong. Please try again.')
+      setSubmitting(false)
+    }
+  }
+
+  const progressPercent = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0
+
+  return (
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 24px 80px' }}>
+      {/* Header */}
+      <div className="animate-fadeIn" style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h1 style={{ fontWeight: 900, fontSize: '1.8rem', marginBottom: '4px' }}>
+              📝 <span className="gradient-text">Practice Test</span>
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              Florida B.E.S.T. 5th Grade Math · {questions.length} Questions
+            </p>
+          </div>
+          <div style={{
+            background: 'rgba(79,142,247,0.1)',
+            border: '1px solid rgba(79,142,247,0.25)',
+            borderRadius: '12px',
+            padding: '12px 20px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-blue)' }}>
+              {answeredCount} / {questions.length}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>answered</div>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="progress-bar-track">
+          <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+          <span>Page {currentPage + 1} of {totalPages}</span>
+          <span>{Math.round(progressPercent)}% complete</span>
+        </div>
+      </div>
+
+      {/* Questions */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px' }}>
+        {currentQuestions.map((q, idx) => {
+          const globalIdx = currentPage * QUESTIONS_PER_PAGE + idx
+          const selected = answers[q.id]
+          return (
+            <div key={q.id} className="glass-card animate-fadeIn" style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <div style={{
+                  minWidth: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  background: selected ? 'linear-gradient(135deg, #4f8ef7, #9b5de5)' : 'rgba(79,142,247,0.12)',
+                  border: `2px solid ${selected ? 'transparent' : 'rgba(79,142,247,0.3)'}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 900,
+                  fontSize: '0.85rem',
+                  color: selected ? 'white' : 'var(--accent-blue)',
+                  transition: 'all 0.2s ease',
+                }}>
+                  {globalIdx + 1}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {q.standard}
+                  </div>
+                  <p style={{ fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.5, color: 'var(--text-primary)' }}>
+                    {q.text}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {q.options.map((opt) => (
+                  <button
+                    key={opt}
+                    className={`option-btn${selected === opt ? ' selected' : ''}`}
+                    onClick={() => handleSelect(q.id, opt)}
+                  >
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      background: selected === opt ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.06)',
+                      marginRight: '10px',
+                      fontSize: '0.75rem',
+                      fontWeight: 900,
+                      color: selected === opt ? 'var(--accent-blue)' : 'var(--text-secondary)',
+                      flexShrink: 0,
+                    }}>
+                      {String.fromCharCode(65 + q.options.indexOf(opt))}
+                    </span>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Navigation */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <button
+          className="btn-secondary"
+          onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+          disabled={currentPage === 0}
+          style={{ opacity: currentPage === 0 ? 0.4 : 1 }}
+        >
+          ← Previous
+        </button>
+
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const pageAnswered = questions
+              .slice(i * QUESTIONS_PER_PAGE, (i + 1) * QUESTIONS_PER_PAGE)
+              .every((q) => answers[q.id])
+            return (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i)}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  border: `2px solid ${i === currentPage ? 'var(--accent-blue)' : pageAnswered ? 'var(--accent-green)' : 'rgba(255,255,255,0.1)'}`,
+                  background: i === currentPage
+                    ? 'rgba(79,142,247,0.2)'
+                    : pageAnswered
+                      ? 'rgba(6,214,160,0.1)'
+                      : 'transparent',
+                  color: i === currentPage
+                    ? 'var(--accent-blue)'
+                    : pageAnswered
+                      ? 'var(--accent-green)'
+                      : 'var(--text-secondary)',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {i + 1}
+              </button>
+            )
+          })}
+        </div>
+
+        {currentPage < totalPages - 1 ? (
+          <button
+            className="btn-primary"
+            onClick={() => setCurrentPage((p) => p + 1)}
+          >
+            Next →
+          </button>
+        ) : (
+          <button
+            className="btn-primary"
+            onClick={handleSubmit}
+            disabled={!allAnswered || submitting}
+            style={{
+              background: allAnswered
+                ? 'linear-gradient(135deg, #06d6a0, #4f8ef7)'
+                : undefined,
+              opacity: !allAnswered ? 0.5 : 1,
+            }}
+          >
+            {submitting ? '⏳ Grading...' : allAnswered ? '✅ Submit Test' : `Answer all questions first (${questions.length - answeredCount} left)`}
+          </button>
+        )}
+      </div>
+
+      {error && (
+        <div style={{
+          marginTop: '20px',
+          padding: '14px',
+          background: 'rgba(239,71,111,0.1)',
+          border: '1px solid rgba(239,71,111,0.3)',
+          borderRadius: '10px',
+          color: 'var(--accent-red)',
+          textAlign: 'center',
+          fontWeight: 600,
+        }}>
+          ❌ {error}
+        </div>
+      )}
+
+      {/* Unanswered warning */}
+      {!allAnswered && currentPage === totalPages - 1 && answeredCount > 0 && (
+        <div style={{
+          marginTop: '16px',
+          padding: '12px',
+          background: 'rgba(255,209,102,0.08)',
+          border: '1px solid rgba(255,209,102,0.25)',
+          borderRadius: '10px',
+          color: '#ffd166',
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          textAlign: 'center',
+        }}>
+          ⚠️ You have {questions.length - answeredCount} unanswered question{questions.length - answeredCount !== 1 ? 's' : ''}. Use the page buttons above to find them.
+        </div>
+      )}
+    </div>
+  )
+}
