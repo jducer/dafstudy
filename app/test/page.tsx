@@ -70,14 +70,19 @@ export default function TestPage() {
     const fresh: Record<string, string> = {}
     questions.forEach((q) => {
       if (q.type === 'multiple-select') {
-        fresh[q.id] = JSON.stringify([(q as any).correctAnswers[0]])
+        const ca = (q as any).correctAnswers || (q as any).correctAnswer || []
+        const first = Array.isArray(ca) ? ca[0] : ca
+        fresh[q.id] = JSON.stringify([first || ''])
       } else if (q.type === 'two-part') {
-        const payload = JSON.stringify({ partA: (q as any).partA?.options?.[1] || '0', partB: (q as any).partB?.options?.[0] || '1' })
+        const payload = JSON.stringify({ 
+          partA: (q as any).partA?.options?.[0] || '', 
+          partB: (q as any).partB?.options?.[0] || '' 
+        })
         fresh[q.id] = payload
       } else if (q.type === 'free-response') {
-        fresh[q.id] = '999'
+        fresh[q.id] = String((q as any).correctAnswer ?? '123')
       } else {
-        fresh[q.id] = (q as any).options?.[0] || 'A'
+        fresh[q.id] = (q as any).options?.[0] || (q as any).correctAnswer || 'A'
       }
     })
     setAnswers(fresh)
