@@ -62,10 +62,11 @@ export async function POST(
             Student's New Answer: "${newAnswer}"
             
             GRADING RULES:
-            1. MATHEMATICAL INTENT: If the student clearly knows the correct answer, mark YES.
-            2. ORDER: For sets of answers, the order does not matter.
-            3. TYPOS: Ignore commas/periods for decimals (1,75 = 1.75).
-            4. LETTERS: For multiple-choice or select questions, if they type the letters (e.g. "a and c") or names of the correct options, mark YES.
+            1. MATHEMATICAL INTENT: If the student has selected all the correct pieces, mark YES.
+            2. MULTI-SELECT: The "Student's New Answer" might be a JSON array like ["A", "B"]. The "Answer Key" might be a string like "A, B" or an array. These are EQUAL.
+            3. ORDER: The order of selections never matters.
+            4. PARTIAL: If it is a multi-select, they MUST have all correct pieces and NO incorrect pieces to get a YES.
+            5. TYPOS: Ignore commas/periods for decimals.
             
             Is the student's new answer correct? Respond ONLY with "YES" or "NO".
           `.trim()
