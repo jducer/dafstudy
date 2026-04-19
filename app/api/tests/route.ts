@@ -76,7 +76,7 @@ export async function POST(request: Request) {
           try {
             const { GoogleGenerativeAI } = await import('@google/generative-ai')
             const ai = new GoogleGenerativeAI(apiKey)
-            const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
+            const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
             const prompt = `
               You are grading a 5th-grade math test for "Dafne".
               Question: "${a.questionText}"

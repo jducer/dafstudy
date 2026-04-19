@@ -53,7 +53,7 @@ export async function POST(
         try {
           const { GoogleGenerativeAI } = await import('@google/generative-ai')
           const ai = new GoogleGenerativeAI(apiKey)
-          const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
+          const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
           
           const prompt = `
             You are a math grading assistant for a 5th-grade student "Dafne".
