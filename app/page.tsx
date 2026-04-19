@@ -52,9 +52,9 @@ export default function HomePage() {
           lineHeight: 1.1,
           marginBottom: '20px',
         }}>
-          <span className="gradient-text">Master Florida FAST</span>
+          <span className="gradient-text">Dafne&apos;s Math Portal</span>
           <br />
-          <span style={{ color: 'var(--text-primary)' }}>5th Grade Math</span>
+          <span style={{ color: 'var(--text-primary)' }}>Mastering 5th Grade</span>
         </h1>
 
         <p style={{
@@ -64,7 +64,7 @@ export default function HomePage() {
           margin: '0 auto 40px',
           lineHeight: 1.6,
         }}>
-          Practice with randomized 40-question tests, get instant grades, and learn from your mistakes with <strong style={{ color: '#9b5de5' }}>Sparky</strong>, your personal AI math tutor! 🤖✨
+          Practice with focused <strong style={{color: 'var(--text-primary)'}}>10-question tests</strong>, get instant grades, and learn with <strong style={{ color: '#9b5de5' }}>Sparky</strong>, your personal AI math tutor! 🤖✨
         </p>
 
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -102,9 +102,9 @@ export default function HomePage() {
         marginBottom: '48px',
       }}>
         {[
-          { number: '65+', label: 'Practice Questions', icon: '📝' },
-          { number: '40', label: 'Questions Per Test', icon: '🎯' },
-          { number: '6', label: 'Math Standards', icon: '📚' },
+          { number: '43', label: 'Struggle-Point Questions', icon: '🎯' },
+          { number: '10', label: 'Questions Per Test', icon: '📝' },
+          { number: '12', label: 'Targeted Standards', icon: '📚' },
         ].map((s) => (
           <div key={s.label} className="glass-card" style={{ padding: '24px', textAlign: 'center' }}>
             <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{s.icon}</div>
@@ -163,11 +163,11 @@ export default function HomePage() {
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {[
-            { step: '1', title: 'Take a Practice Test', desc: '40 random questions from 65+ aligned to Florida B.E.S.T. standards.', color: '#4f8ef7' },
+            { step: '1', title: 'Start a Focused Test', desc: '10 randomized questions targeting exactly where you need practice.', color: '#4f8ef7' },
             { step: '2', title: 'Get Instant Results', desc: 'See your score immediately. Every test is saved to your history.', color: '#9b5de5' },
             { step: '3', title: 'Review Mistakes', desc: 'On the dashboard, open any test to see which questions you got wrong.', color: '#00b4d8' },
-            { step: '4', title: 'Ask Sparky for Help', desc: 'Click "Rectify" for AI-powered hints explaining your mistake — no direct answers!', color: '#06d6a0' },
-            { step: '5', title: 'Resubmit & Master It', desc: 'Re-answer wrong questions until you reach 100%. The ⭐ Fully Rectified badge unlocks!', color: '#ffd166' },
+            { step: '4', title: 'Ask Sparky for Help', desc: 'Click "Help me understand more" for AI hints — no direct answers!', color: '#06d6a0' },
+            { step: '5', title: 'Resubmit & Master It', desc: 'Re-answer wrong questions until you reach 100%. Master your standards! ⭐', color: '#ffd166' },
           ].map((item) => (
             <div key={item.step} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
               <div style={{

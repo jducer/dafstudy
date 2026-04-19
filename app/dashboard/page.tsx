@@ -11,7 +11,12 @@ interface TestSummary {
   originalScore: number
   currentScore: number
   isFullyRectified: boolean
-  answers: { id: number; isCorrect: boolean; isRectified: boolean }[]
+  answers: { 
+    id: number; 
+    isCorrect: boolean; 
+    isRectified: boolean; 
+    solutionRevealed: boolean 
+  }[]
 }
 
 function ScoreRing({ score, total }: { score: number; total: number }) {
@@ -77,7 +82,7 @@ export default function DashboardPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h1 style={{ fontWeight: 900, fontSize: '2rem', marginBottom: '4px' }}>
-              📊 <span className="gradient-text">My Dashboard</span>
+              📊 <span className="gradient-text">Dafne's Learning Portal</span>
             </h1>
             <p style={{ color: 'var(--text-secondary)' }}>Track your progress and review past tests</p>
           </div>
@@ -137,8 +142,8 @@ export default function DashboardPage() {
             {tests.map((test) => {
               const pct = Math.round((test.originalScore / test.totalQuestions) * 100)
               const currentPct = Math.round((test.currentScore / test.totalQuestions) * 100)
-              const wrongCount = test.answers.filter((a) => !a.isCorrect).length
-              const rectifiedAnswers = test.answers.filter((a) => a.isRectified).length
+              const rectifiedAnswers = test.answers.filter((a) => a.isRectified && !a.isCorrect).length
+              const revealedCount = test.answers.filter((a) => a.solutionRevealed && !a.isRectified && !a.isCorrect).length
               const dateStr = new Date(test.createdAt).toLocaleDateString('en-US', {
                 weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
               })
@@ -164,12 +169,12 @@ export default function DashboardPage() {
                         {dateStr} · {timeStr}
                       </div>
                       <div style={{ marginTop: '6px', fontSize: '0.85rem', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                        <span style={{ color: 'var(--accent-green)' }}>✅ {test.originalScore} correct</span>
-                        {wrongCount > 0 && (
-                          <span style={{ color: 'var(--accent-red)' }}>❌ {wrongCount} wrong</span>
-                        )}
+                        <span style={{ color: 'var(--accent-green)' }}>✅ {test.originalScore} Correct</span>
                         {rectifiedAnswers > 0 && (
-                          <span style={{ color: '#ffd166' }}>🔄 {rectifiedAnswers} rectified</span>
+                          <span style={{ color: '#ffd166' }}>🔄 {rectifiedAnswers} Fixed</span>
+                        )}
+                        {revealedCount > 0 && (
+                          <span style={{ color: 'var(--text-secondary)' }}>💡 {revealedCount} Solutions Read</span>
                         )}
                       </div>
                     </div>

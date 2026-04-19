@@ -19,6 +19,7 @@ interface QuestionAnswer {
   diagramType?: string
   diagramContent?: string
   questionType?: string
+  solutionRevealed: boolean
 }
 
 interface TestResult {
@@ -51,8 +52,13 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
   useEffect(() => {
     fetch(`/api/tests/${id}`)
       .then((r) => r.json())
-      .then((data) => {
+      .then((data: TestResult) => {
         setTest(data)
+        const initialShown: Record<number, boolean> = {}
+        data.answers.forEach(a => {
+          if (a.solutionRevealed) initialShown[a.id] = true
+        })
+        setShownAnswers(initialShown)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -99,10 +105,21 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     }
   }
 
-  const handleShowAnswer = (answer: QuestionAnswer) => {
+  const handleShowAnswer = async (answer: QuestionAnswer) => {
     setShownAnswers(prev => ({ ...prev, [answer.id]: true }))
     // Automatically trigger Sparky explanation
     askSparky(answer, true, false)
+    
+    // Save to DB that solution was revealed
+    try {
+      await fetch(`/api/tests/${id}/reveal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answerId: answer.id }),
+      })
+    } catch (e) {
+      console.error('Failed to save reveal state:', e)
+    }
   }
 
   const handleRectifySelect = (answerId: number, option: string) => {

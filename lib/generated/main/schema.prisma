@@ -22,18 +22,19 @@ model TestResult {
 }
 
 model QuestionAnswer {
-  id              Int        @id @default(autoincrement())
-  testResultId    Int
-  testResult      TestResult @relation(fields: [testResultId], references: [id], onDelete: Cascade)
-  questionId      String
-  questionText    String
-  correctAnswer   String
-  userAnswer      String
-  isCorrect       Boolean
-  isRectified     Boolean    @default(false)
-  rectifiedAnswer String?
-  diagramType     String?
-  diagramContent  String?
-  optionsJson     String?
-  questionType    String     @default("single-choice")
+  id               Int        @id @default(autoincrement())
+  testResultId     Int
+  testResult       TestResult @relation(fields: [testResultId], references: [id], onDelete: Cascade)
+  questionId       String
+  questionText     String
+  correctAnswer    String
+  userAnswer       String
+  isCorrect        Boolean
+  isRectified      Boolean    @default(false)
+  rectifiedAnswer  String?
+  diagramType      String?
+  diagramContent   String?
+  optionsJson      String?
+  questionType     String     @default("single-choice")
+  solutionRevealed Boolean    @default(false)
 }

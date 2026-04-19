@@ -36,4 +36,5 @@ model QuestionAnswer {
   diagramContent  String?
   optionsJson     String?
   questionType    String     @default("single-choice")
+  solutionRevealed Boolean   @default(false)
 }

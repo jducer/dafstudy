@@ -20,6 +20,7 @@ export async function GET() {
             diagramContent: true,
             questionType: true,
             optionsJson: true,
+            solutionRevealed: true,
           },
         },
       },
