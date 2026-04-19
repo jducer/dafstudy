@@ -2144,6 +2144,7 @@ export namespace Prisma {
     rectifiedAnswer: string | null
     diagramType: string | null
     diagramContent: string | null
+    questionType: string | null
   }
 
   export type QuestionAnswerMaxAggregateOutputType = {
@@ -2158,6 +2159,7 @@ export namespace Prisma {
     rectifiedAnswer: string | null
     diagramType: string | null
     diagramContent: string | null
+    questionType: string | null
   }
 
   export type QuestionAnswerCountAggregateOutputType = {
@@ -2172,6 +2174,7 @@ export namespace Prisma {
     rectifiedAnswer: number
     diagramType: number
     diagramContent: number
+    questionType: number
     _all: number
   }
 
@@ -2198,6 +2201,7 @@ export namespace Prisma {
     rectifiedAnswer?: true
     diagramType?: true
     diagramContent?: true
+    questionType?: true
   }
 
   export type QuestionAnswerMaxAggregateInputType = {
@@ -2212,6 +2216,7 @@ export namespace Prisma {
     rectifiedAnswer?: true
     diagramType?: true
     diagramContent?: true
+    questionType?: true
   }
 
   export type QuestionAnswerCountAggregateInputType = {
@@ -2226,6 +2231,7 @@ export namespace Prisma {
     rectifiedAnswer?: true
     diagramType?: true
     diagramContent?: true
+    questionType?: true
     _all?: true
   }
 
@@ -2327,6 +2333,7 @@ export namespace Prisma {
     rectifiedAnswer: string | null
     diagramType: string | null
     diagramContent: string | null
+    questionType: string
     _count: QuestionAnswerCountAggregateOutputType | null
     _avg: QuestionAnswerAvgAggregateOutputType | null
     _sum: QuestionAnswerSumAggregateOutputType | null
@@ -2360,6 +2367,7 @@ export namespace Prisma {
     rectifiedAnswer?: boolean
     diagramType?: boolean
     diagramContent?: boolean
+    questionType?: boolean
     testResult?: boolean | TestResultDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["questionAnswer"]>
 
@@ -2375,6 +2383,7 @@ export namespace Prisma {
     rectifiedAnswer?: boolean
     diagramType?: boolean
     diagramContent?: boolean
+    questionType?: boolean
     testResult?: boolean | TestResultDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["questionAnswer"]>
 
@@ -2390,6 +2399,7 @@ export namespace Prisma {
     rectifiedAnswer?: boolean
     diagramType?: boolean
     diagramContent?: boolean
+    questionType?: boolean
     testResult?: boolean | TestResultDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["questionAnswer"]>
 
@@ -2405,9 +2415,10 @@ export namespace Prisma {
     rectifiedAnswer?: boolean
     diagramType?: boolean
     diagramContent?: boolean
+    questionType?: boolean
   }
 
-  export type QuestionAnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "testResultId" | "questionId" | "questionText" | "correctAnswer" | "userAnswer" | "isCorrect" | "isRectified" | "rectifiedAnswer" | "diagramType" | "diagramContent", ExtArgs["result"]["questionAnswer"]>
+  export type QuestionAnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "testResultId" | "questionId" | "questionText" | "correctAnswer" | "userAnswer" | "isCorrect" | "isRectified" | "rectifiedAnswer" | "diagramType" | "diagramContent" | "questionType", ExtArgs["result"]["questionAnswer"]>
   export type QuestionAnswerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     testResult?: boolean | TestResultDefaultArgs<ExtArgs>
   }
@@ -2435,6 +2446,7 @@ export namespace Prisma {
       rectifiedAnswer: string | null
       diagramType: string | null
       diagramContent: string | null
+      questionType: string
     }, ExtArgs["result"]["questionAnswer"]>
     composites: {}
   }
@@ -2870,6 +2882,7 @@ export namespace Prisma {
     readonly rectifiedAnswer: FieldRef<"QuestionAnswer", 'String'>
     readonly diagramType: FieldRef<"QuestionAnswer", 'String'>
     readonly diagramContent: FieldRef<"QuestionAnswer", 'String'>
+    readonly questionType: FieldRef<"QuestionAnswer", 'String'>
   }
     
 
@@ -3316,7 +3329,8 @@ export namespace Prisma {
     isRectified: 'isRectified',
     rectifiedAnswer: 'rectifiedAnswer',
     diagramType: 'diagramType',
-    diagramContent: 'diagramContent'
+    diagramContent: 'diagramContent',
+    questionType: 'questionType'
   };
 
   export type QuestionAnswerScalarFieldEnum = (typeof QuestionAnswerScalarFieldEnum)[keyof typeof QuestionAnswerScalarFieldEnum]
@@ -3458,6 +3472,7 @@ export namespace Prisma {
     rectifiedAnswer?: StringNullableFilter<"QuestionAnswer"> | string | null
     diagramType?: StringNullableFilter<"QuestionAnswer"> | string | null
     diagramContent?: StringNullableFilter<"QuestionAnswer"> | string | null
+    questionType?: StringFilter<"QuestionAnswer"> | string
     testResult?: XOR<TestResultScalarRelationFilter, TestResultWhereInput>
   }
 
@@ -3473,6 +3488,7 @@ export namespace Prisma {
     rectifiedAnswer?: SortOrderInput | SortOrder
     diagramType?: SortOrderInput | SortOrder
     diagramContent?: SortOrderInput | SortOrder
+    questionType?: SortOrder
     testResult?: TestResultOrderByWithRelationInput
   }
 
@@ -3491,6 +3507,7 @@ export namespace Prisma {
     rectifiedAnswer?: StringNullableFilter<"QuestionAnswer"> | string | null
     diagramType?: StringNullableFilter<"QuestionAnswer"> | string | null
     diagramContent?: StringNullableFilter<"QuestionAnswer"> | string | null
+    questionType?: StringFilter<"QuestionAnswer"> | string
     testResult?: XOR<TestResultScalarRelationFilter, TestResultWhereInput>
   }, "id">
 
@@ -3506,6 +3523,7 @@ export namespace Prisma {
     rectifiedAnswer?: SortOrderInput | SortOrder
     diagramType?: SortOrderInput | SortOrder
     diagramContent?: SortOrderInput | SortOrder
+    questionType?: SortOrder
     _count?: QuestionAnswerCountOrderByAggregateInput
     _avg?: QuestionAnswerAvgOrderByAggregateInput
     _max?: QuestionAnswerMaxOrderByAggregateInput
@@ -3528,6 +3546,7 @@ export namespace Prisma {
     rectifiedAnswer?: StringNullableWithAggregatesFilter<"QuestionAnswer"> | string | null
     diagramType?: StringNullableWithAggregatesFilter<"QuestionAnswer"> | string | null
     diagramContent?: StringNullableWithAggregatesFilter<"QuestionAnswer"> | string | null
+    questionType?: StringWithAggregatesFilter<"QuestionAnswer"> | string
   }
 
   export type TestResultCreateInput = {
@@ -3604,6 +3623,7 @@ export namespace Prisma {
     rectifiedAnswer?: string | null
     diagramType?: string | null
     diagramContent?: string | null
+    questionType?: string
     testResult: TestResultCreateNestedOneWithoutAnswersInput
   }
 
@@ -3619,6 +3639,7 @@ export namespace Prisma {
     rectifiedAnswer?: string | null
     diagramType?: string | null
     diagramContent?: string | null
+    questionType?: string
   }
 
   export type QuestionAnswerUpdateInput = {
@@ -3631,6 +3652,7 @@ export namespace Prisma {
     rectifiedAnswer?: NullableStringFieldUpdateOperationsInput | string | null
     diagramType?: NullableStringFieldUpdateOperationsInput | string | null
     diagramContent?: NullableStringFieldUpdateOperationsInput | string | null
+    questionType?: StringFieldUpdateOperationsInput | string
     testResult?: TestResultUpdateOneRequiredWithoutAnswersNestedInput
   }
 
@@ -3646,6 +3668,7 @@ export namespace Prisma {
     rectifiedAnswer?: NullableStringFieldUpdateOperationsInput | string | null
     diagramType?: NullableStringFieldUpdateOperationsInput | string | null
     diagramContent?: NullableStringFieldUpdateOperationsInput | string | null
+    questionType?: StringFieldUpdateOperationsInput | string
   }
 
   export type QuestionAnswerCreateManyInput = {
@@ -3660,6 +3683,7 @@ export namespace Prisma {
     rectifiedAnswer?: string | null
     diagramType?: string | null
     diagramContent?: string | null
+    questionType?: string
   }
 
   export type QuestionAnswerUpdateManyMutationInput = {
@@ -3672,6 +3696,7 @@ export namespace Prisma {
     rectifiedAnswer?: NullableStringFieldUpdateOperationsInput | string | null
     diagramType?: NullableStringFieldUpdateOperationsInput | string | null
     diagramContent?: NullableStringFieldUpdateOperationsInput | string | null
+    questionType?: StringFieldUpdateOperationsInput | string
   }
 
   export type QuestionAnswerUncheckedUpdateManyInput = {
@@ -3686,6 +3711,7 @@ export namespace Prisma {
     rectifiedAnswer?: NullableStringFieldUpdateOperationsInput | string | null
     diagramType?: NullableStringFieldUpdateOperationsInput | string | null
     diagramContent?: NullableStringFieldUpdateOperationsInput | string | null
+    questionType?: StringFieldUpdateOperationsInput | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -3854,6 +3880,7 @@ export namespace Prisma {
     rectifiedAnswer?: SortOrder
     diagramType?: SortOrder
     diagramContent?: SortOrder
+    questionType?: SortOrder
   }
 
   export type QuestionAnswerAvgOrderByAggregateInput = {
@@ -3873,6 +3900,7 @@ export namespace Prisma {
     rectifiedAnswer?: SortOrder
     diagramType?: SortOrder
     diagramContent?: SortOrder
+    questionType?: SortOrder
   }
 
   export type QuestionAnswerMinOrderByAggregateInput = {
@@ -3887,6 +3915,7 @@ export namespace Prisma {
     rectifiedAnswer?: SortOrder
     diagramType?: SortOrder
     diagramContent?: SortOrder
+    questionType?: SortOrder
   }
 
   export type QuestionAnswerSumOrderByAggregateInput = {
@@ -4167,6 +4196,7 @@ export namespace Prisma {
     rectifiedAnswer?: string | null
     diagramType?: string | null
     diagramContent?: string | null
+    questionType?: string
   }
 
   export type QuestionAnswerUncheckedCreateWithoutTestResultInput = {
@@ -4180,6 +4210,7 @@ export namespace Prisma {
     rectifiedAnswer?: string | null
     diagramType?: string | null
     diagramContent?: string | null
+    questionType?: string
   }
 
   export type QuestionAnswerCreateOrConnectWithoutTestResultInput = {
@@ -4222,6 +4253,7 @@ export namespace Prisma {
     rectifiedAnswer?: StringNullableFilter<"QuestionAnswer"> | string | null
     diagramType?: StringNullableFilter<"QuestionAnswer"> | string | null
     diagramContent?: StringNullableFilter<"QuestionAnswer"> | string | null
+    questionType?: StringFilter<"QuestionAnswer"> | string
   }
 
   export type TestResultCreateWithoutAnswersInput = {
@@ -4285,6 +4317,7 @@ export namespace Prisma {
     rectifiedAnswer?: string | null
     diagramType?: string | null
     diagramContent?: string | null
+    questionType?: string
   }
 
   export type QuestionAnswerUpdateWithoutTestResultInput = {
@@ -4297,6 +4330,7 @@ export namespace Prisma {
     rectifiedAnswer?: NullableStringFieldUpdateOperationsInput | string | null
     diagramType?: NullableStringFieldUpdateOperationsInput | string | null
     diagramContent?: NullableStringFieldUpdateOperationsInput | string | null
+    questionType?: StringFieldUpdateOperationsInput | string
   }
 
   export type QuestionAnswerUncheckedUpdateWithoutTestResultInput = {
@@ -4310,6 +4344,7 @@ export namespace Prisma {
     rectifiedAnswer?: NullableStringFieldUpdateOperationsInput | string | null
     diagramType?: NullableStringFieldUpdateOperationsInput | string | null
     diagramContent?: NullableStringFieldUpdateOperationsInput | string | null
+    questionType?: StringFieldUpdateOperationsInput | string
   }
 
   export type QuestionAnswerUncheckedUpdateManyWithoutTestResultInput = {
@@ -4323,6 +4358,7 @@ export namespace Prisma {
     rectifiedAnswer?: NullableStringFieldUpdateOperationsInput | string | null
     diagramType?: NullableStringFieldUpdateOperationsInput | string | null
     diagramContent?: NullableStringFieldUpdateOperationsInput | string | null
+    questionType?: StringFieldUpdateOperationsInput | string
   }
 
 

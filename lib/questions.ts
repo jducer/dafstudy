@@ -2,7 +2,7 @@
 // Florida B.E.S.T. 5th-Grade Math Question Bank
 // Optimized version with 100 clean, validated questions.
 
-export interface Question {
+export interface BaseQuestion {
   id: string
   standard: string
   text: string
@@ -10,10 +10,33 @@ export interface Question {
     type: 'svg' | 'image'
     content: string
   }
-  options: string[]
-  correctAnswer: string
   explanation: string
 }
+
+export interface SingleChoiceQuestion extends BaseQuestion {
+  type?: 'single-choice'
+  options: string[]
+  correctAnswer: string
+}
+
+export interface MultipleSelectQuestion extends BaseQuestion {
+  type: 'multiple-select'
+  options: string[]
+  correctAnswers: string[]
+}
+
+export interface FreeResponseQuestion extends BaseQuestion {
+  type: 'free-response'
+  correctAnswer: string
+}
+
+export interface TwoPartQuestion extends BaseQuestion {
+  type: 'two-part'
+  partA: { text: string; options: string[]; correctAnswer: string }
+  partB: { text: string; options: string[]; correctAnswer: string }
+}
+
+export type Question = SingleChoiceQuestion | MultipleSelectQuestion | FreeResponseQuestion | TwoPartQuestion
 
 
 import { drawCoordinatePlane, drawPolygon, drawBarChart, drawFractionBox } from './diagrams'
@@ -40,7 +63,23 @@ export const questionBank: Question[] = [
   { id: 'FR-001', standard: 'MA.5.FR.1.1', text: 'Which of the following fractions is equivalent to the shaded portion of the model below?', diagram: { type: 'svg', content: drawFractionBox(3, 4) }, options: ['6/8', '4/6', '6/9', '5/8'], correctAnswer: '6/8', explanation: 'Simplify.' },
   { id: 'FR-002', standard: 'MA.5.FR.1.2', text: '2/3 + 3/5?', options: ['19/15', '5/8', '5/15', '1/2'], correctAnswer: '19/15', explanation: 'Need common den (15).' },
   { id: 'FR-003', standard: 'MA.5.FR.1.3', text: '5/6 - 1/4?', options: ['7/12', '4/2', '4/12', '1/3'], correctAnswer: '7/12', explanation: 'Need common den (12).' },
-  { id: 'FR-004', standard: 'MA.5.FR.2.1', text: '3/4 × 2/5?', options: ['6/20', '5/9', '6/9', '3/10'], correctAnswer: '6/20', explanation: 'Direct product.' },
+  { 
+    id: 'FR-004', 
+    standard: 'MA.5.FR.2.1', 
+    type: 'two-part',
+    text: 'This question has two parts. First, calculate the product, then find an equivalent fraction.', 
+    partA: {
+      text: 'Part A. What is 3/4 × 2/5?',
+      options: ['6/20', '5/9', '6/9', '3/10'],
+      correctAnswer: '6/20'
+    },
+    partB: {
+      text: 'Part B. Which of the following is equivalent to the answer from Part A?',
+      options: ['3/10', '1/3', '12/40', 'Both 3/10 and 12/40'],
+      correctAnswer: 'Both 3/10 and 12/40'
+    },
+    explanation: 'Part A: 3x2=6 and 4x5=20. Part B: 6/20 = 3/10 = 12/40.' 
+  },
   { id: 'FR-005', standard: 'MA.5.FR.2.2', text: '3/8 of 24 students?', options: ['9', '8', '6', '12'], correctAnswer: '9', explanation: '24/8=3. 3x3=9.' },
   { id: 'FR-006', standard: 'MA.5.FR.2.3', text: '2 ÷ 1/3?', options: ['6', '2/3', '1/6', '3/2'], correctAnswer: '6', explanation: 'Flip and multiply.' },
   { id: 'FR-007', standard: 'MA.5.FR.2.4', text: '1/4 ÷ 5?', options: ['1/20', '5/4', '4/5', '20'], correctAnswer: '1/20', explanation: '1/4 x 1/5.' },
@@ -56,11 +95,26 @@ export const questionBank: Question[] = [
   { id: 'AR-005', standard: 'MA.5.AR.2.2', text: '8 more than twice a number n is 22?', options: ['2n + 8 = 22', '2 + 8n = 22', '8n + 2 = 22', '2n - 8 = 22'], correctAnswer: '2n + 8 = 22', explanation: 'Word to equation.' },
   { id: 'AR-006', standard: 'MA.5.AR.2.1', text: 'y - 10 = 50. y?', options: ['60', '40', '500', '5'], correctAnswer: '60', explanation: 'Linear inverse.' },
   { id: 'AR-007', standard: 'MA.5.AR.3.1', text: 'Next term: 1, 3, 9, 27...', options: ['81', '30', '54', '45'], correctAnswer: '81', explanation: 'Multiply by 3.' },
-  { id: 'AR-008', standard: 'MA.5.AR.1.1', text: '[ (10 - 2) × 3 ] ÷ 4?', options: ['6', '8', '12', '4'], correctAnswer: '6', explanation: 'Brackets logic.' },
+  { 
+    id: 'AR-008', 
+    standard: 'MA.5.AR.1.1', 
+    type: 'multiple-select',
+    text: 'Select all the expressions that have a value of 6.', 
+    options: ['[ (10 - 2) × 3 ] ÷ 4', '2 × 3', '12 ÷ 2', '4 + 1'], 
+    correctAnswers: ['[ (10 - 2) × 3 ] ÷ 4', '2 × 3', '12 ÷ 2'],
+    explanation: 'Evaluate each expression: (8 x 3) / 4 = 6; 2 x 3 = 6; 12 / 2 = 6; 4 + 1 = 5.' 
+  },
 
   // MEASUREMENT & GEOMETRY (M/GR)
   { id: 'MEA-001', standard: 'MA.5.M.1.1', text: 'Inches in 4 feet 7 inches?', options: ['55', '47', '51', '59'], correctAnswer: '55', explanation: '4x12=48. 48+7=55.' },
-  { id: 'MEA-002', standard: 'MA.5.M.1.2', text: 'Quarts in 2.5 gallons?', options: ['10', '6', '8', '12'], correctAnswer: '10', explanation: '2.5 x 4.' },
+  { 
+    id: 'MEA-002', 
+    standard: 'MA.5.M.1.2', 
+    type: 'free-response',
+    text: 'How many quarts are in 2.5 gallons? Write your response in the shaded box below.', 
+    correctAnswer: '10', 
+    explanation: 'There are 4 quarts in a gallon. 2.5 x 4 = 10.' 
+  },
   { id: 'MEA-003', standard: 'MA.5.M.2.1', text: 'Area of 8.5 cm by 4 cm rectangle?', options: ['34 cm²', '25 cm²', '32 cm²', '34 cm'], correctAnswer: '34 cm²', explanation: '8.5 x 4.' },
   { id: 'MEA-004', standard: 'MA.5.M.2.2', text: 'Volume of 5x3x4 prism?', options: ['60 cm³', '24 cm³', '47 cm³', '120 cm³'], correctAnswer: '60 cm³', explanation: 'Product.' },
   { id: 'MEA-005', standard: 'MA.5.M.1.1', text: 'Grams in 0.75 kg?', options: ['750', '75', '7500', '0.075'], correctAnswer: '750', explanation: '0.75 x 1000.' },

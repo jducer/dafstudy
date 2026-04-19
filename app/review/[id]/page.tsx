@@ -18,6 +18,7 @@ interface QuestionAnswer {
   options?: string[]
   diagramType?: string
   diagramContent?: string
+  questionType?: string
 }
 
 interface TestResult {
@@ -319,28 +320,41 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
               {/* Answer display */}
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: answer.isCorrect ? 0 : '16px' }}>
                 <div style={{
-                  padding: '10px 16px',
-                  borderRadius: '10px',
-                  background: 'rgba(6,214,160,0.1)',
-                  border: '1px solid rgba(6,214,160,0.3)',
-                  flex: 1,
-                  minWidth: '140px',
+                  padding: '10px 16px', borderRadius: '10px', background: 'rgba(6,214,160,0.1)', border: '1px solid rgba(6,214,160,0.3)', flex: 1, minWidth: '140px',
                 }}>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#06d6a0', marginBottom: '4px', textTransform: 'uppercase' }}>✅ Correct Answer</div>
-                  <div style={{ fontWeight: 700, color: '#06d6a0' }}>{answer.correctAnswer}</div>
+                  <div style={{ fontWeight: 700, color: '#06d6a0', whiteSpace: 'pre-wrap' }}>
+                    {(() => {
+                      try {
+                        if (answer.questionType === 'multiple-select') return JSON.parse(answer.correctAnswer).join(', ')
+                        if (answer.questionType === 'two-part') {
+                          const p = JSON.parse(answer.correctAnswer)
+                          return `Part A: ${p.partA}\nPart B: ${p.partB}`
+                        }
+                      } catch (e) {}
+                      return answer.correctAnswer
+                    })()}
+                  </div>
                 </div>
 
                 {!answer.isCorrect && (
                   <div style={{
-                    padding: '10px 16px',
-                    borderRadius: '10px',
-                    background: 'rgba(239,71,111,0.08)',
-                    border: '1px solid rgba(239,71,111,0.25)',
-                    flex: 1,
-                    minWidth: '140px',
+                    padding: '10px 16px', borderRadius: '10px', background: 'rgba(239,71,111,0.08)', border: '1px solid rgba(239,71,111,0.25)', flex: 1, minWidth: '140px',
                   }}>
                     <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#ef476f', marginBottom: '4px', textTransform: 'uppercase' }}>❌ Your Answer</div>
-                    <div style={{ fontWeight: 700, color: '#ef476f' }}>{answer.userAnswer}</div>
+                    <div style={{ fontWeight: 700, color: '#ef476f', whiteSpace: 'pre-wrap' }}>
+                      {(() => {
+                        if (!answer.userAnswer) return 'No answer provided'
+                        try {
+                          if (answer.questionType === 'multiple-select') return JSON.parse(answer.userAnswer).join(', ')
+                          if (answer.questionType === 'two-part') {
+                            const p = JSON.parse(answer.userAnswer)
+                            return `Part A: ${p.partA || '?'}\nPart B: ${p.partB || '?'}`
+                          }
+                        } catch (e) {}
+                        return answer.userAnswer
+                      })()}
+                    </div>
                   </div>
                 )}
 

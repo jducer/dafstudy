@@ -18,6 +18,7 @@ export async function GET() {
             isRectified: true,
             diagramType: true,
             diagramContent: true,
+            questionType: true,
           },
         },
       },
@@ -42,18 +43,40 @@ export async function POST(request: Request) {
       userAnswer: string
       diagramType?: string
       diagramContent?: string
+      questionType?: string
     }[] = body.answers
 
     if (!Array.isArray(answers) || answers.length === 0) {
       return NextResponse.json({ error: 'No answers provided' }, { status: 400 })
     }
 
-    const gradedAnswers = answers.map((a) => ({
-      ...a,
-      isCorrect: a.userAnswer.trim().toLowerCase() === a.correctAnswer.trim().toLowerCase(),
-      isRectified: false,
-      rectifiedAnswer: null,
-    }))
+    const gradedAnswers = answers.map((a) => {
+      let isCorrect = false
+      const qType = a.questionType || 'single-choice'
+      
+      try {
+        if (qType === 'multiple-select' || qType === 'two-part') {
+          // Parse stringified JSON payloads to ensure property/order matching is immune to spacing differences
+          const userParsed = JSON.parse(a.userAnswer)
+          const correctParsed = JSON.parse(a.correctAnswer)
+          // Simple deep equality for flat arrays or simple objects
+          isCorrect = JSON.stringify(userParsed) === JSON.stringify(correctParsed)
+        } else {
+          isCorrect = a.userAnswer.trim().toLowerCase() === a.correctAnswer.trim().toLowerCase()
+        }
+      } catch (e) {
+        // Fallback to strict string check if parsing fails
+        isCorrect = a.userAnswer.trim().toLowerCase() === a.correctAnswer.trim().toLowerCase()
+      }
+
+      return {
+        ...a,
+        isCorrect,
+        questionType: qType,
+        isRectified: false,
+        rectifiedAnswer: null,
+      }
+    })
 
     const originalScore = gradedAnswers.filter((a) => a.isCorrect).length
 

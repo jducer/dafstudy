@@ -43,8 +43,10 @@ export default function TestPage() {
     (currentPage + 1) * QUESTIONS_PER_PAGE
   )
 
-  const handleSelect = (questionId: string, option: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: option }))
+  const handleSelect = (questionId: string, option: string | string[] | Record<string, string>) => {
+    // If it's an object or array, store it as JSON string. Otherwise just store the string.
+    const valueStr = typeof option === 'string' ? option : JSON.stringify(option)
+    setAnswers((prev) => ({ ...prev, [questionId]: valueStr }))
   }
 
   const handleSubmit = async () => {
@@ -52,15 +54,28 @@ export default function TestPage() {
     setSubmitting(true)
     setError(null)
     try {
-      const payload = questions.map((q) => ({
-        questionId: q.id,
-        questionText: q.text,
-        correctAnswer: q.correctAnswer,
-        userAnswer: answers[q.id] ?? '',
-        options: q.options,
-        diagramType: q.diagram?.type,
-        diagramContent: q.diagram?.content,
-      }))
+      const payload = questions.map((q) => {
+        let correctValueStr = ''
+        if (q.type === 'multiple-select') {
+          correctValueStr = JSON.stringify(q.correctAnswers)
+        } else if (q.type === 'two-part') {
+          correctValueStr = JSON.stringify({ partA: q.partA.correctAnswer, partB: q.partB.correctAnswer })
+        } else {
+          // single-choice or free-response
+          correctValueStr = (q as any).correctAnswer ?? ''
+        }
+
+        return {
+          questionId: q.id,
+          questionText: q.text,
+          correctAnswer: correctValueStr,
+          userAnswer: answers[q.id] ?? '',
+          options: (q as any).options ?? undefined,
+          diagramType: q.diagram?.type,
+          diagramContent: q.diagram?.content,
+          questionType: q.type || 'single-choice',
+        }
+      })
 
       const res = await fetch('/api/tests', {
         method: 'POST',
@@ -164,33 +179,100 @@ export default function TestPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {q.options.map((opt) => (
-                  <button
-                    key={opt}
-                    className={`option-btn${selected === opt ? ' selected' : ''}`}
-                    onClick={() => handleSelect(q.id, opt)}
-                  >
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      background: selected === opt ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.06)',
-                      marginRight: '10px',
-                      fontSize: '0.75rem',
-                      fontWeight: 900,
-                      color: selected === opt ? 'var(--accent-blue)' : 'var(--text-secondary)',
-                      flexShrink: 0,
-                    }}>
-                      {String.fromCharCode(65 + q.options.indexOf(opt))}
-                    </span>
-                    {opt}
-                  </button>
-                ))}
-              </div>
+              {(!q.type || q.type === 'single-choice') && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {(q as any).options.map((opt: string, i: number) => (
+                    <button
+                      key={opt}
+                      className={`option-btn${selected === opt ? ' selected' : ''}`}
+                      onClick={() => handleSelect(q.id, opt)}
+                    >
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%',
+                        background: selected === opt ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.06)', marginRight: '10px', fontSize: '0.75rem', fontWeight: 900,
+                        color: selected === opt ? 'var(--accent-blue)' : 'var(--text-secondary)', flexShrink: 0
+                      }}>
+                        {String.fromCharCode(65 + i)}
+                      </span>
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {q.type === 'multiple-select' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {(q as any).options.map((opt: string) => {
+                    const parsedSelection: string[] = answers[q.id] ? JSON.parse(answers[q.id]) : []
+                    const isSelected = parsedSelection.includes(opt)
+                    return (
+                      <button
+                        key={opt}
+                        className={`option-btn${isSelected ? ' selected' : ''}`}
+                        onClick={() => {
+                          const newSelection = isSelected 
+                            ? parsedSelection.filter(x => x !== opt) 
+                            : [...parsedSelection, opt]
+                          handleSelect(q.id, newSelection)
+                        }}
+                      >
+                        <input type="checkbox" checked={isSelected} readOnly style={{ marginRight: '10px', accentColor: 'var(--accent-blue)' }} />
+                        {opt}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+
+              {q.type === 'free-response' && (
+                <div style={{ marginTop: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Type your answer here..."
+                    value={answers[q.id] || ''}
+                    onChange={(e) => handleSelect(q.id, e.target.value)}
+                    style={{
+                      width: '100%', padding: '16px', background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(255,255,255,0.1)',
+                      borderRadius: '12px', color: 'white', fontSize: '1.1rem', fontWeight: 'bold'
+                    }}
+                  />
+                </div>
+              )}
+
+              {q.type === 'two-part' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {['partA', 'partB'].map((partKey) => {
+                    const part = q[partKey as 'partA' | 'partB']
+                    const currentAnswers = answers[q.id] ? JSON.parse(answers[q.id]) : {}
+                    const selectedForPart = currentAnswers[partKey]
+                    return (
+                      <div key={partKey} style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '12px' }}>
+                        <p style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '0.95rem' }}>{part.text}</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {part.options.map((opt, i) => (
+                            <button
+                              key={opt}
+                              className={`option-btn${selectedForPart === opt ? ' selected' : ''}`}
+                              onClick={() => {
+                                handleSelect(q.id, { ...currentAnswers, [partKey]: opt })
+                              }}
+                            >
+                              <span style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%',
+                                background: selectedForPart === opt ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.06)', marginRight: '10px', fontSize: '0.75rem', fontWeight: 900,
+                                color: selectedForPart === opt ? 'var(--accent-blue)' : 'var(--text-secondary)'
+                              }}>
+                                {String.fromCharCode(65 + i)}
+                              </span>
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )
         })}
