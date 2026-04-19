@@ -61,10 +61,13 @@ export async function POST(
             Answer Key: "${existing.correctAnswer}"
             Student's New Answer: "${newAnswer}"
             
-            IMPORTANT: A 10-year-old might use a COMMA instead of a PERIOD for a decimal (e.g., "1,75" instead of "1.75"). If the intent is clearly correct, mark it as YES. 
-            Also ignore minor trailing spaces or slight variations in multi-select formatting.
+            GRADING RULES:
+            1. MATHEMATICAL INTENT: If the student clearly knows the correct answer, mark YES.
+            2. TYPOS: Ignore commas/periods for decimals (1,75 = 1.75).
+            3. LETTERS: For multiple-choice or select questions, if they type the letters (e.g. "a and c") or names of the correct options, mark YES.
+            4. FORMATTING: Ignore case, trailing spaces, or punctuation differences.
             
-            Is the student's new answer mathematically correct and acceptable?
+            Is the student's new answer correct?
             Respond with ONLY "YES" or "NO".
           `.trim()
           

@@ -75,7 +75,11 @@ export async function POST(request: Request) {
               Key: "${a.correctAnswer}"
               Student: "${a.userAnswer}"
               
-              Note: Accept commas instead of periods for decimals (e.g. 1,75 = 1.75).
+              RULES:
+              1. Accept letters (e.g. "a") or name of option.
+              2. Accept commas for decimals.
+              3. Ignore minor spacing/punctuation.
+              
               Is the student correct? YES or NO.
             `.trim()
             const result = await model.generateContent(prompt)

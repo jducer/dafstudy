@@ -515,7 +515,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     </div>
 
                     {/* CHOICE UI (Buttons) */}
-                    {(answer.questionType === 'single-choice' || answer.questionType === 'multiple-select') && !shownAnswers[answer.id] ? (
+                    {(answer.questionType === 'single-choice' || answer.questionType === 'multiple-select') ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {(() => {
                           let opts: string[] = []
@@ -535,9 +535,21 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               isSelected = r?.selected === opt
                             }
 
+                            // Check if this was the ORIGINAL incorrect answer
+                            let isOriginalWrong = false
+                            try {
+                              if (isMS) {
+                                const origParsed = JSON.parse(answer.userAnswer)
+                                isOriginalWrong = Array.isArray(origParsed) && origParsed.includes(opt)
+                              } else {
+                                isOriginalWrong = answer.userAnswer === opt
+                              }
+                            } catch(e) {}
+
                             return (
                               <button
                                 key={opt}
+                                disabled={shownAnswers[answer.id]}
                                 className={`option-btn${isSelected ? ' selected' : ''}`}
                                 onClick={() => {
                                   if (isMS) {
@@ -553,16 +565,26 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                                     handleRectifySelect(answer.id, opt)
                                   }
                                 }}
-                                style={{ textAlign: 'left', padding: '12px 16px' }}
+                                style={{ 
+                                  textAlign: 'left', 
+                                  padding: '12px 16px',
+                                  border: isOriginalWrong ? '1px dashed #ef476f' : undefined,
+                                  opacity: shownAnswers[answer.id] ? 0.7 : 1
+                                }}
                               >
                                 <span style={{
                                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%',
                                   background: isSelected ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.06)', marginRight: '10px', fontSize: '0.75rem', fontWeight: 900,
                                   color: isSelected ? 'var(--accent-blue)' : 'var(--text-secondary)', flexShrink: 0
                                 }}>
-                                  {isMS ? '☐' : String.fromCharCode(65 + i)}
+                                  {isMS ? (isSelected ? '✓' : '☐') : String.fromCharCode(65 + i)}
                                 </span>
                                 {opt}
+                                {isOriginalWrong && (
+                                  <span style={{ marginLeft: 'auto', fontSize: '0.7rem', fontWeight: 700, color: '#ef476f', textTransform: 'uppercase' }}>
+                                    Your choice ❌
+                                  </span>
+                                )}
                               </button>
                             )
                           })
@@ -579,14 +601,14 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         )}
                       </div>
                     ) : (
-                      /* FREE RESPONSE / REVEALED UI (Text Input) */
+                      /* FREE RESPONSE / TWO-PART / REVEALED UI (Text Input) */
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                         <input
                           type="text"
                           disabled={shownAnswers[answer.id]}
                           value={(() => {
                             if (shownAnswers[answer.id]) return '';
-                            // Prettify multi-select JSON if it's currently stored as such
+                            // Prettify multi-select JSON if it's currently stored as such (fallback)
                             if (answer.questionType === 'multiple-select') {
                               try {
                                 const p = JSON.parse(r?.selected || '[]')
@@ -598,35 +620,36 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                           onChange={(e) => handleRectifySelect(answer.id, e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter') submitRectify(answer) }}
                           placeholder={shownAnswers[answer.id] ? "No more tries" : "Type your answer here..."}
-                        style={{
-                          flex: 1,
-                          minWidth: '200px',
-                          padding: '10px 14px',
-                          borderRadius: '10px',
-                          border: r?.result === 'correct'
-                            ? '2px solid #06d6a0'
-                            : r?.result === 'wrong'
-                              ? '2px solid #ef476f'
-                              : '2px solid rgba(79,142,247,0.3)',
-                          background: 'rgba(22,33,62,0.5)',
-                          color: 'var(--text-primary)',
-                          fontFamily: 'inherit',
-                          fontSize: '0.95rem',
-                          outline: 'none',
-                          transition: 'border-color 0.2s ease',
-                        }}
-                      />
-                      {!shownAnswers[answer.id] && (
-                        <button
-                          className="btn-primary"
-                          onClick={() => submitRectify(answer)}
-                          disabled={!r?.selected || r?.submitting}
-                          style={{ padding: '10px 20px', fontSize: '0.875rem' }}
-                        >
-                          {r?.submitting ? '⏳' : '✅ Submit'}
-                        </button>
-                      )}
-                    </div>
+                          style={{
+                            flex: 1,
+                            minWidth: '200px',
+                            padding: '10px 14px',
+                            borderRadius: '10px',
+                            border: r?.result === 'correct'
+                              ? '2px solid #06d6a0'
+                              : r?.result === 'wrong'
+                                ? '2px solid #ef476f'
+                                : '2px solid rgba(79,142,247,0.3)',
+                            background: 'rgba(22,33,62,0.5)',
+                            color: 'var(--text-primary)',
+                            fontFamily: 'inherit',
+                            fontSize: '0.95rem',
+                            outline: 'none',
+                            transition: 'border-color 0.2s ease',
+                          }}
+                        />
+                        {!shownAnswers[answer.id] && (
+                          <button
+                            className="btn-primary"
+                            onClick={() => submitRectify(answer)}
+                            disabled={!r?.selected || r?.submitting}
+                            style={{ padding: '10px 20px', fontSize: '0.875rem' }}
+                          >
+                            {r?.submitting ? '⏳' : '✅ Submit'}
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {r?.result === 'correct' && (
                       <div style={{ marginTop: '10px', color: '#06d6a0', fontWeight: 700, fontSize: '0.9rem' }}>
