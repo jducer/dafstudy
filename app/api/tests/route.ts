@@ -69,9 +69,12 @@ export async function POST(request: Request) {
             const ai = new GoogleGenAI(apiKey)
             const model = ai.models.get({ model: 'gemini-2.5-flash' })
             const prompt = `
+              As a math tutor, check if the student is correct.
               Question: "${a.questionText}"
               Key: "${a.correctAnswer}"
               Student: "${a.userAnswer}"
+              
+              Note: Accept commas instead of periods for decimals (e.g. 1,75 = 1.75).
               Is the student correct? YES or NO.
             `.trim()
             const result = await model.generateContent(prompt)

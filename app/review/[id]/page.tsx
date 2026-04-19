@@ -58,7 +58,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
       .catch(() => setLoading(false))
   }, [id])
 
-  const askSparky = async (answer: QuestionAnswer, explainMode = false) => {
+  const askSparky = async (answer: QuestionAnswer, explainMode = false, expoundMode = false) => {
     setHints((prev) => ({
       ...prev,
       [answer.id]: { loading: true, text: null, error: null },
@@ -81,6 +81,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
           userAnswer: answer.userAnswer,
           options,
           explainMode,
+          expoundMode,
         }),
       })
       const data = await res.json()
@@ -101,7 +102,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
   const handleShowAnswer = (answer: QuestionAnswer) => {
     setShownAnswers(prev => ({ ...prev, [answer.id]: true }))
     // Automatically trigger Sparky explanation
-    askSparky(answer, true)
+    askSparky(answer, true, false)
   }
 
   const handleRectifySelect = (answerId: number, option: string) => {
@@ -443,21 +444,24 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                       <p style={{ color: 'var(--text-primary)', lineHeight: 1.6, fontSize: '0.95rem' }}>
                         {hint.text}
                       </p>
-                      <button
-                        onClick={() => askSparky(answer)}
-                        style={{
-                          marginTop: '8px',
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--text-secondary)',
-                          fontSize: '0.78rem',
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          fontFamily: 'inherit',
-                        }}
-                      >
-                        🔁 Ask again
-                      </button>
+                      {!shownAnswers[answer.id] && (
+                        <button
+                          onClick={() => askSparky(answer, false, true)}
+                          style={{
+                            marginTop: '8px',
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--text-secondary)',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            fontFamily: 'inherit',
+                            fontWeight: 600
+                          }}
+                        >
+                          🤔 Help me understand more...
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -476,17 +480,18 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                   )}
 
                   {/* Rectify input — simple radio-style options */}
-                  <div style={{ marginTop: '4px' }}>
+                  <div style={{ marginTop: '4px', opacity: shownAnswers[answer.id] ? 0.6 : 1 }}>
                     <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      💡 Try again — type your new answer:
+                      {shownAnswers[answer.id] ? '💡 The answer is revealed above' : '💡 Try again — type your new answer:'}
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                       <input
                         type="text"
+                        disabled={shownAnswers[answer.id]}
                         value={r?.selected ?? ''}
                         onChange={(e) => handleRectifySelect(answer.id, e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') submitRectify(answer) }}
-                        placeholder="Type your answer here..."
+                        placeholder={shownAnswers[answer.id] ? "No more tries" : "Type your answer here..."}
                         style={{
                           flex: 1,
                           minWidth: '200px',
@@ -505,14 +510,16 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                           transition: 'border-color 0.2s ease',
                         }}
                       />
-                      <button
-                        className="btn-primary"
-                        onClick={() => submitRectify(answer)}
-                        disabled={!r?.selected || r?.submitting}
-                        style={{ padding: '10px 20px', fontSize: '0.875rem' }}
-                      >
-                        {r?.submitting ? '⏳' : '✅ Submit'}
-                      </button>
+                      {!shownAnswers[answer.id] && (
+                        <button
+                          className="btn-primary"
+                          onClick={() => submitRectify(answer)}
+                          disabled={!r?.selected || r?.submitting}
+                          style={{ padding: '10px 20px', fontSize: '0.875rem' }}
+                        >
+                          {r?.submitting ? '⏳' : '✅ Submit'}
+                        </button>
+                      )}
                     </div>
 
                     {r?.result === 'correct' && (

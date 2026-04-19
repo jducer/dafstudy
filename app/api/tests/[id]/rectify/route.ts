@@ -56,12 +56,15 @@ export async function POST(
           const model = ai.models.get({ model: 'gemini-2.5-flash' })
           
           const prompt = `
-            You are a math grading assistant. 
+            You are a math grading assistant for a 5th-grade student.
             Question: "${existing.questionText}"
             Answer Key: "${existing.correctAnswer}"
             Student's New Answer: "${newAnswer}"
             
-            Is the student's new answer mathematically equivalent and correct? 
+            IMPORTANT: A 10-year-old might use a COMMA instead of a PERIOD for a decimal (e.g., "1,75" instead of "1.75"). If the intent is clearly correct, mark it as YES. 
+            Also ignore minor trailing spaces or slight variations in multi-select formatting.
+            
+            Is the student's new answer mathematically correct and acceptable?
             Respond with ONLY "YES" or "NO".
           `.trim()
           

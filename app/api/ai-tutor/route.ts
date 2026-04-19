@@ -7,12 +7,13 @@ import { GoogleGenAI } from '@google/genai'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { questionText, correctAnswer, userAnswer, options, explainMode } = body as {
+    const { questionText, correctAnswer, userAnswer, options, explainMode, expoundMode } = body as {
       questionText: string
       correctAnswer: string
       userAnswer: string
       options: string[]
       explainMode?: boolean
+      expoundMode?: boolean
     }
 
     if (!questionText || !correctAnswer || !userAnswer) {
@@ -32,12 +33,14 @@ export async function POST(request: Request) {
     const systemPrompt = `
 You are a friendly, encouraging math tutor named "Sparky" who helps 5th-grade students.
 Use simple words a 10-year-old can understand.
-Keep your response SHORT and ENCOURAGING — no more than 4 sentences.
+Keep your response SHORT and ENCOURAGING — no more than 6 sentences.
 ${explainMode ? 'You ARE allowed to give the correct answer and explain exactly why it is right.' : 'NEVER give the direct answer. Give a hint instead.'}
 Your job is to:
 ${explainMode 
   ? 'Explain why the correct answer is right and where the student might have tripped up.' 
-  : '1. Tell the student what they did wrong in a kind way.\n2. Give ONE helpful hint or tip to guide them toward the correct answer.'}
+  : expoundMode
+    ? 'Provide a more detailed, step-by-step breakdown of how to solve the problem, but STOP just before the final calculation so the student can finish it themselves.'
+    : '1. Tell the student what they did wrong in a kind way.\n2. Give ONE helpful hint or tip to guide them toward the correct answer.'}
 Always end with an encouraging phrase like "You got this!" or "Keep trying — you're so close!"
 `.trim()
 
