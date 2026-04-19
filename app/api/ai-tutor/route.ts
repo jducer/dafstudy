@@ -28,44 +28,44 @@ export async function POST(request: Request) {
       )
     }
 
-    const ai = new GoogleGenAI({ apiKey })
+    const ai = new GoogleGenAI(apiKey)
+    const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const systemPrompt = `
-You are a friendly, encouraging math tutor named "Sparky" who helps 5th-grade students.
+You are a friendly, encouraging math tutor named "Sparky" who helps 5th-grade students like "Dafne".
 Use simple words a 10-year-old can understand.
-Keep your response SHORT and ENCOURAGING — no more than 6 sentences.
-${explainMode ? 'You ARE allowed to give the correct answer and explain exactly why it is right.' : 'NEVER give the direct answer. Give a hint instead.'}
+You are NOT limited by length — provide as much detail as needed to ensure she understands.
+${explainMode ? 'You ARE allowed to give the correct answer and explain exactly why it is right.' : 'If the student is still trying to solve it (NOT explainMode), NEVER give the direct answer. Give a hint instead.'}
+
 Your job is to:
-${explainMode 
-  ? 'Explain why the correct answer is right and where the student might have tripped up.' 
-  : expoundMode
-    ? 'Provide a more detailed, step-by-step breakdown of how to solve the problem, but STOP just before the final calculation so the student can finish it themselves.'
-    : '1. Tell the student what they did wrong in a kind way.\n2. Give ONE helpful hint or tip to guide them toward the correct answer.'}
-Always end with an encouraging phrase like "You got this!" or "Keep trying — you're so close!"
+${expoundMode 
+  ? 'The student asked for MORE detail. Review the previous explanation (if provided) and provide a MUCH deeper, step-by-step breakdown. Use analogies, breaking down the math into tiny, digestible bites.'
+  : explainMode
+    ? 'Explain why the correct answer is right and where the student might have tripped up.'
+    : 'Identify what the student did wrong and give a helpful hint to guide them toward the correct answer.'}
+
+Always end with an encouraging phrase like "You got this, superhero!" or "You're getting so much closer!"
 `.trim()
 
     const userPrompt = `
-A 5th-grade student answered a math question.
-
 Question: "${questionText}"
-Answer choices: ${options ? options.join(', ') : 'N/A'}
-The student's answer: "${userAnswer}"
-Correct answer: "${correctAnswer}"
+Choices: ${options ? options.join(', ') : 'N/A'}
+Student's Answer: "${userAnswer}"
+Correct Answer: "${correctAnswer}"
+${body.previousHint ? `Previous Hint provided: "${body.previousHint}"` : ''}
 
-Please follow the system instructions exactly: ${explainMode ? 'Explain the solution clearly.' : 'Give a hint without revealing the answer.'}
+${expoundMode ? 'The student needs a DEEPER explanation. Please expound on the previous logic.' : 'Please provide a hint or explanation.'}
 `.trim()
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: userPrompt,
-      config: {
-        systemInstruction: systemPrompt,
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 2000,
       },
     })
 
-    const text = response.text ?? 'Sorry, I could not generate a hint right now. Please try again!'
+    const text = result.response.text().trim() || 'Sorry, I could not generate a hint right now.'
 
     return NextResponse.json({ hint: text })
   } catch (err) {

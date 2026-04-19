@@ -27,12 +27,12 @@ export async function POST() {
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
       Your task is to generate 10 rigorous, mathematically perfect questions for "Dafne".
       
-      ACCURACY GATE (MANDATORY):
+      ACCURACY & SOLVABILITY GATE (MANDATORY):
       For EVERY question, you MUST perform a "Verification Pass":
       1. Calculate the exact decimal value of all numbers/fractions in the question.
       2. Verify that the 'correctAnswer' actually satisfies the question text (e.g., if you ask "Which is greater", you MUST verify the comparison is true).
       3. Ensure that exactly ONE option is correct.
-      4. Avoid "trick" questions unless they are standard-aligned.
+      4. **STRICT SOLVABILITY**: You MUST NOT mention a table, chart, map, or picture in your question text unless you have provided it in the "diagramRequest". If you cannot provide the visual helper, you MUST re-write the question to be entirely text-based.
       
       TEST STRUCTURE:
       - RATIO: Exactly 8 questions MUST be 'single-choice'. Exactly 2 questions MUST be 'free-response' or 'multiple-select'.

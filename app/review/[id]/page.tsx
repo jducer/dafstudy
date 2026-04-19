@@ -71,9 +71,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
   }, [id])
 
   const askSparky = async (answer: QuestionAnswer, explainMode = false, expoundMode = false) => {
+    const currentHint = hints[answer.id]?.text
+    
     setHints((prev) => ({
       ...prev,
-      [answer.id]: { loading: true, text: null, error: null },
+      [answer.id]: { loading: true, text: currentHint, error: null },
     }))
 
     try {
@@ -94,6 +96,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
           options,
           explainMode,
           expoundMode,
+          previousHint: expoundMode ? currentHint : null,
         }),
       })
       const data = await res.json()
