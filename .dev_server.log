@@ -660,3 +660,287 @@ Import traces:
  GET /test 200 in 139ms (next.js: 49ms, application-code: 90ms)
  GET /test 200 in 34ms (next.js: 1180µs, application-code: 33ms)
 ✓ Compiled in 15ms
+ GET / 200 in 68ms (next.js: 17ms, application-code: 51ms)
+ GET /api/tests 200 in 75ms (next.js: 65ms, application-code: 10ms)
+ GET /test 200 in 13ms (next.js: 3ms, application-code: 10ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+POST /api/tests error: Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.testResult.create()` invocation:
+
+
+attempt to write a readonly database
+    at qr.handleRequestError (lib/generated/main/runtime/client.js:69:8172)
+    at qr.handleAndLogRequestError (lib/generated/main/runtime/client.js:69:7467)
+    at qr.request (lib/generated/main/runtime/client.js:69:7174)
+    at async a (lib/generated/main/runtime/client.js:79:5816)
+    at async POST (app/api/tests/route.ts:92:24)
+  67 | ...
+  68 | ...
+> 69 | ...t c=s?{modelName:s,...t.meta}:t.meta;throw new w.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'SQLITE_READONLY_DBMOVED',
+  meta: { modelName: 'TestResult' },
+  clientVersion: '7.2.0'
+}
+ POST /api/tests 500 in 153ms (next.js: 3ms, application-code: 150ms)
+⨯ ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  [90m171 |[0m       </div>
+  [90m172 |[0m
+[31m[1m>[0m [90m173 |[0m       {[90m/* Questions */[0m}
+  [90m    |[0m       [31m[1m^[0m
+  [90m174 |[0m       <div style={{ display: [32m'flex'[0m, flexDirection: [32m'column'[0m, gap: [32m'24px'[0m, marginBottom: [32m...[0m
+  [90m175 |[0m         {currentQuestions.map((q, idx) => {
+  [90m176 |[0m           [36mconst[0m globalIdx = currentPage * [33mQUESTIONS_PER_PAGE[0m + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+ GET /test 500 in 15ms (next.js: 8ms, application-code: 7ms)
+⨯ ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  [90m171 |[0m       </div>
+  [90m172 |[0m
+[31m[1m>[0m [90m173 |[0m       {[90m/* Questions */[0m}
+  [90m    |[0m       [31m[1m^[0m
+  [90m174 |[0m       <div style={{ display: [32m'flex'[0m, flexDirection: [32m'column'[0m, gap: [32m'24px'[0m, marginBottom: [32m...[0m
+  [90m175 |[0m         {currentQuestions.map((q, idx) => {
+  [90m176 |[0m           [36mconst[0m globalIdx = currentPage * [33mQUESTIONS_PER_PAGE[0m + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+ GET /test 500 in 9ms (next.js: 3ms, application-code: 6ms)
+⨯ ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  [90m171 |[0m       </div>
+  [90m172 |[0m
+[31m[1m>[0m [90m173 |[0m       {[90m/* Questions */[0m}
+  [90m    |[0m       [31m[1m^[0m
+  [90m174 |[0m       <div style={{ display: [32m'flex'[0m, flexDirection: [32m'column'[0m, gap: [32m'24px'[0m, marginBottom: [32m...[0m
+  [90m175 |[0m         {currentQuestions.map((q, idx) => {
+  [90m176 |[0m           [36mconst[0m globalIdx = currentPage * [33mQUESTIONS_PER_PAGE[0m + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+⨯ ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  [90m171 |[0m       </div>
+  [90m172 |[0m
+[31m[1m>[0m [90m173 |[0m       {[90m/* Questions */[0m}
+  [90m    |[0m       [31m[1m^[0m
+  [90m174 |[0m       <div style={{ display: [32m'flex'[0m, flexDirection: [32m'column'[0m, gap: [32m'24px'[0m, marginBottom: [32m...[0m
+  [90m175 |[0m         {currentQuestions.map((q, idx) => {
+  [90m176 |[0m           [36mconst[0m globalIdx = currentPage * [33mQUESTIONS_PER_PAGE[0m + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+ GET /test 500 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /test 500 in 14ms (next.js: 9ms, application-code: 6ms)
+⨯ ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  [90m171 |[0m       </div>
+  [90m172 |[0m
+[31m[1m>[0m [90m173 |[0m       {[90m/* Questions */[0m}
+  [90m    |[0m       [31m[1m^[0m
+  [90m174 |[0m       <div style={{ display: [32m'flex'[0m, flexDirection: [32m'column'[0m, gap: [32m'24px'[0m, marginBottom: [32m...[0m
+  [90m175 |[0m         {currentQuestions.map((q, idx) => {
+  [90m176 |[0m           [36mconst[0m globalIdx = currentPage * [33mQUESTIONS_PER_PAGE[0m + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+⨯ ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  [90m171 |[0m       </div>
+  [90m172 |[0m
+[31m[1m>[0m [90m173 |[0m       {[90m/* Questions */[0m}
+  [90m    |[0m       [31m[1m^[0m
+  [90m174 |[0m       <div style={{ display: [32m'flex'[0m, flexDirection: [32m'column'[0m, gap: [32m'24px'[0m, marginBottom: [32m...[0m
+  [90m175 |[0m         {currentQuestions.map((q, idx) => {
+  [90m176 |[0m           [36mconst[0m globalIdx = currentPage * [33mQUESTIONS_PER_PAGE[0m + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+ GET /test 500 in 20ms (next.js: 8ms, application-code: 12ms)
+ GET /test 500 in 21ms (next.js: 14ms, application-code: 7ms)
+✓ Compiled in 28ms
+[browser] Uncaught Error: ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  171 |       </div>
+  172 |
+> 173 |       {/* Questions */}
+      |       ^
+  174 |       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: ...
+  175 |         {currentQuestions.map((q, idx) => {
+  176 |           const globalIdx = currentPage * QUESTIONS_PER_PAGE + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./app/test/page.tsx:173:7)
+    at <unknown> (Error: (./app/test/page.tsx:173:7)
+[browser] Uncaught Error: ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  171 |       </div>
+  172 |
+> 173 |       {/* Questions */}
+      |       ^
+  174 |       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: ...
+  175 |         {currentQuestions.map((q, idx) => {
+  176 |           const globalIdx = currentPage * QUESTIONS_PER_PAGE + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./app/test/page.tsx:173:7)
+    at <unknown> (Error: (./app/test/page.tsx:173:7)
+[browser] ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  171 |       </div>
+  172 |
+> 173 |       {/* Questions */}
+      |       ^
+  174 |       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: ...
+  175 |         {currentQuestions.map((q, idx) => {
+  176 |           const globalIdx = currentPage * QUESTIONS_PER_PAGE + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component] 
+[browser] ./app/test/page.tsx:173:7
+Expected ',', got '{'
+  171 |       </div>
+  172 |
+> 173 |       {/* Questions */}
+      |       ^
+  174 |       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: ...
+  175 |         {currentQuestions.map((q, idx) => {
+  176 |           const globalIdx = currentPage * QUESTIONS_PER_PAGE + idx
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component] 
+✓ Compiled in 24ms
+ GET /test 200 in 169ms (next.js: 63ms, application-code: 106ms)
+ GET /test 200 in 42ms (next.js: 1788µs, application-code: 41ms)
+ GET /test 200 in 84ms (next.js: 38ms, application-code: 47ms)
+ GET /test 200 in 46ms (next.js: 1220µs, application-code: 45ms)
+ GET /test 200 in 61ms (next.js: 925µs, application-code: 60ms)
+ GET /test 200 in 58ms (next.js: 1315µs, application-code: 57ms)
+ GET /test 200 in 55ms (next.js: 1886µs, application-code: 53ms)
+ GET /test 200 in 52ms (next.js: 1176µs, application-code: 51ms)
+ GET /test 200 in 56ms (next.js: 1029µs, application-code: 55ms)
+ GET /test 200 in 54ms (next.js: 1020µs, application-code: 53ms)
+ GET /test 200 in 54ms (next.js: 957µs, application-code: 53ms)
+ GET /test 200 in 53ms (next.js: 1025µs, application-code: 51ms)
+ GET /test 200 in 48ms (next.js: 981µs, application-code: 47ms)
+ GET /test 200 in 50ms (next.js: 1913µs, application-code: 48ms)
+ GET /test 200 in 50ms (next.js: 1254µs, application-code: 48ms)
+ GET /test 200 in 47ms (next.js: 1384µs, application-code: 46ms)
+ GET /test 200 in 46ms (next.js: 948µs, application-code: 45ms)
+ GET /test 200 in 49ms (next.js: 1820µs, application-code: 47ms)
+ GET /test 200 in 47ms (next.js: 1420µs, application-code: 46ms)
+ GET /test 200 in 36ms (next.js: 1708µs, application-code: 35ms)
+ GET /test 200 in 25ms (next.js: 1093µs, application-code: 24ms)
+ GET /test 200 in 12ms (next.js: 1330µs, application-code: 10ms)
+ GET /test 200 in 74ms (next.js: 29ms, application-code: 46ms)
+ GET /test 200 in 42ms (next.js: 822µs, application-code: 41ms)
+ GET /test 200 in 54ms (next.js: 802µs, application-code: 54ms)
+ GET /test 200 in 56ms (next.js: 881µs, application-code: 55ms)
+ GET /test 200 in 50ms (next.js: 958µs, application-code: 49ms)
+ GET /test 200 in 39ms (next.js: 1470µs, application-code: 38ms)
+ GET /test 200 in 18ms (next.js: 818µs, application-code: 17ms)
+ GET /test 200 in 9ms (next.js: 760µs, application-code: 8ms)

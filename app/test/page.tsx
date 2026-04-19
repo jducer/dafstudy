@@ -138,10 +138,19 @@ export default function TestPage() {
           }}>
             <button 
               onClick={handleFillSampleAnswers} 
-              style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', background: 'transparent', border: 'none', cursor: 'pointer', marginBottom: '4px' }}
-              title="Debug: Auto-fill"
+              className="option-btn"
+              style={{ 
+                fontSize: '0.8rem', 
+                padding: '6px 12px',
+                marginBottom: '8px',
+                background: 'rgba(79,142,247,0.15)',
+                border: '1px solid var(--accent-blue)',
+                color: 'var(--accent-blue)',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
             >
-              fill sample answers
+              🚀 DEBUG: Fill Sample Answers
             </button>
             <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-blue)' }}>
               {answeredCount} / {questions.length}

@@ -51,7 +51,7 @@ Please follow the system instructions exactly: explain what the student likely m
 `.trim()
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-1.5-flash',
       contents: userPrompt,
       config: {
         systemInstruction: systemPrompt,
