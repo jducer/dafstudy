@@ -31,8 +31,50 @@ export async function POST(
       return NextResponse.json({ error: 'Answer not found' }, { status: 404 })
     }
 
-    const isCorrect =
-      newAnswer.trim().toLowerCase() === existing.correctAnswer.trim().toLowerCase()
+    // --- SMART GRADING (AI) ---
+    // If it's a simple string match, we use it. Otherwise, we ask Gemini.
+    let isCorrect = newAnswer.trim().toLowerCase() === existing.correctAnswer.trim().toLowerCase()
+    
+    // If not a strict match, check if it's a JSON match (for multi-select/two-part)
+    if (!isCorrect) {
+      try {
+        const userParsed = JSON.parse(newAnswer)
+        const correctParsed = JSON.parse(existing.correctAnswer)
+        isCorrect = JSON.stringify(userParsed) === JSON.stringify(correctParsed)
+      } catch (e) {
+        // Not JSON, continue to AI check
+      }
+    }
+
+    // FINAL AI JUDGE (for natural language or formatting differences)
+    if (!isCorrect) {
+      const apiKey = process.env.GEMINI_API_KEY
+      if (apiKey) {
+        try {
+          const { GoogleGenAI } = await import('@google/genai')
+          const ai = new GoogleGenAI(apiKey)
+          const model = ai.models.get({ model: 'gemini-2.5-flash' })
+          
+          const prompt = `
+            You are a math grading assistant. 
+            Question: "${existing.questionText}"
+            Answer Key: "${existing.correctAnswer}"
+            Student's New Answer: "${newAnswer}"
+            
+            Is the student's new answer mathematically equivalent and correct? 
+            Respond with ONLY "YES" or "NO".
+          `.trim()
+          
+          const result = await model.generateContent(prompt)
+          const text = (await result.response).text().trim().toUpperCase()
+          if (text.includes('YES')) {
+            isCorrect = true
+          }
+        } catch (err) {
+          console.error('AI Grading failed, falling back to strict:', err)
+        }
+      }
+    }
 
     // Update the answer
     const updated = await prismaMain.questionAnswer.update({

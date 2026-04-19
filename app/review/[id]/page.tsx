@@ -130,12 +130,23 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
       if (!res.ok) throw new Error('Submission failed')
 
       const isCorrect = data.answer.isRectified
+      
+      // Update local test state WITHOUT wiping the whole object to preserve scroll/DOM
+      setTest(prev => {
+        if (!prev) return data.test
+        const newAnswers = prev.answers.map(a => a.id === data.answer.id ? data.answer : a)
+        return {
+          ...prev,
+          currentScore: data.test.currentScore,
+          isFullyRectified: data.test.isFullyRectified,
+          answers: newAnswers
+        }
+      })
+
       setRectify((prev) => ({
         ...prev,
         [answer.id]: { ...prev[answer.id], submitting: false, result: isCorrect ? 'correct' : 'wrong' },
       }))
-      // Refresh test data
-      setTest(data.test)
     } catch {
       setRectify((prev) => ({
         ...prev,

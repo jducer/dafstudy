@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No answers provided' }, { status: 400 })
     }
 
-    const gradedAnswers = rawAnswers.map((a: any) => {
+    const gradedAnswers = await Promise.all(rawAnswers.map(async (a: any) => {
       let isCorrect = false
       const qType = a.questionType || 'single-choice'
       
@@ -60,6 +60,26 @@ export async function POST(request: Request) {
         isCorrect = safeUserStr === safeCorrectStr && safeCorrectStr !== ''
       }
 
+      // --- AI SECOND PASS for Free Response ---
+      if (!isCorrect && qType === 'free-response' && a.userAnswer) {
+        const apiKey = process.env.GEMINI_API_KEY
+        if (apiKey) {
+          try {
+            const { GoogleGenAI } = await import('@google/genai')
+            const ai = new GoogleGenAI(apiKey)
+            const model = ai.models.get({ model: 'gemini-2.5-flash' })
+            const prompt = `
+              Question: "${a.questionText}"
+              Key: "${a.correctAnswer}"
+              Student: "${a.userAnswer}"
+              Is the student correct? YES or NO.
+            `.trim()
+            const result = await model.generateContent(prompt)
+            if ((await result.response).text().toUpperCase().includes('YES')) isCorrect = true
+          } catch {}
+        }
+      }
+
       return {
         questionId: a.questionId,
         questionText: a.questionText,
@@ -73,7 +93,7 @@ export async function POST(request: Request) {
         isRectified: false,
         rectifiedAnswer: null,
       }
-    })
+    }))
 
     const originalScore = gradedAnswers.filter((a) => a.isCorrect).length
 
