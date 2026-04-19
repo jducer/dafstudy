@@ -503,26 +503,101 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                       border: '1px solid rgba(239,71,111,0.25)',
                       borderRadius: '10px',
                       color: '#ef476f',
-                      fontSize: '0.85rem',
                       marginBottom: '12px',
                     }}>
-                      ❌ {hint.error}
-                    </div>
-                  )}
+                      ❌ {hint.error} 
+                    </div> 
+                  )} 
 
-                  {/* Rectify input — simple radio-style options */}
                   <div style={{ marginTop: '4px', opacity: shownAnswers[answer.id] ? 0.6 : 1 }}>
                     <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {shownAnswers[answer.id] ? '💡 The answer is revealed above' : '💡 Try again — type your new answer:'}
+                      {shownAnswers[answer.id] ? '💡 The answer is revealed above' : '💡 Try again:'}
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <input
-                        type="text"
-                        disabled={shownAnswers[answer.id]}
-                        value={r?.selected ?? ''}
-                        onChange={(e) => handleRectifySelect(answer.id, e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') submitRectify(answer) }}
-                        placeholder={shownAnswers[answer.id] ? "No more tries" : "Type your answer here..."}
+
+                    {/* CHOICE UI (Buttons) */}
+                    {(answer.questionType === 'single-choice' || answer.questionType === 'multiple-select') && !shownAnswers[answer.id] ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {(() => {
+                          let opts: string[] = []
+                          try {
+                            if ((answer as any).optionsJson) opts = JSON.parse((answer as any).optionsJson)
+                          } catch (e) {}
+
+                          return opts.map((opt, i) => {
+                            const isMS = answer.questionType === 'multiple-select'
+                            let isSelected = false
+                            if (isMS) {
+                              try {
+                                const parsed = r?.selected ? JSON.parse(r.selected) : []
+                                isSelected = Array.isArray(parsed) && parsed.includes(opt)
+                              } catch (e) { isSelected = r?.selected === opt }
+                            } else {
+                              isSelected = r?.selected === opt
+                            }
+
+                            return (
+                              <button
+                                key={opt}
+                                className={`option-btn${isSelected ? ' selected' : ''}`}
+                                onClick={() => {
+                                  if (isMS) {
+                                    let current: string[] = []
+                                    try {
+                                      current = r?.selected ? JSON.parse(r.selected) : []
+                                    } catch (e) {}
+                                    const next = current.includes(opt)
+                                      ? current.filter(x => x !== opt)
+                                      : [...current, opt]
+                                    handleRectifySelect(answer.id, JSON.stringify(next))
+                                  } else {
+                                    handleRectifySelect(answer.id, opt)
+                                  }
+                                }}
+                                style={{ textAlign: 'left', padding: '12px 16px' }}
+                              >
+                                <span style={{
+                                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%',
+                                  background: isSelected ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.06)', marginRight: '10px', fontSize: '0.75rem', fontWeight: 900,
+                                  color: isSelected ? 'var(--accent-blue)' : 'var(--text-secondary)', flexShrink: 0
+                                }}>
+                                  {isMS ? '☐' : String.fromCharCode(65 + i)}
+                                </span>
+                                {opt}
+                              </button>
+                            )
+                          })
+                        })()}
+                        {!shownAnswers[answer.id] && (
+                          <button
+                            className="btn-primary"
+                            onClick={() => submitRectify(answer)}
+                            disabled={!r?.selected || r?.submitting}
+                            style={{ padding: '12px', marginTop: '8px' }}
+                          >
+                            {r?.submitting ? '⏳ Submitting...' : '✅ Check My Answer'}
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      /* FREE RESPONSE / REVEALED UI (Text Input) */
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          disabled={shownAnswers[answer.id]}
+                          value={(() => {
+                            if (shownAnswers[answer.id]) return '';
+                            // Prettify multi-select JSON if it's currently stored as such
+                            if (answer.questionType === 'multiple-select') {
+                              try {
+                                const p = JSON.parse(r?.selected || '[]')
+                                if (Array.isArray(p)) return p.join(', ')
+                              } catch(e) {}
+                            }
+                            return r?.selected ?? ''
+                          })()}
+                          onChange={(e) => handleRectifySelect(answer.id, e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') submitRectify(answer) }}
+                          placeholder={shownAnswers[answer.id] ? "No more tries" : "Type your answer here..."}
                         style={{
                           flex: 1,
                           minWidth: '200px',
