@@ -22,8 +22,11 @@ export default function TestPage() {
   const allAnswered = questions.length > 0 && answeredCount === questions.length
 
   const startTest = useCallback(() => {
-    setQuestions(getRandomQuestions(40))
+    const qs = getRandomQuestions(40)
+    console.log("Random questions fetched:", qs.length, qs)
+    setQuestions(qs)
     setAnswers({})
+
     setCurrentPage(0)
     setTestStarted(true)
   }, [])
@@ -55,6 +58,8 @@ export default function TestPage() {
         correctAnswer: q.correctAnswer,
         userAnswer: answers[q.id] ?? '',
         options: q.options,
+        diagramType: q.diagram?.type,
+        diagramContent: q.diagram?.content,
       }))
 
       const res = await fetch('/api/tests', {
@@ -142,6 +147,20 @@ export default function TestPage() {
                   <p style={{ fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.5, color: 'var(--text-primary)' }}>
                     {q.text}
                   </p>
+                  {q.diagram && (
+                    <div 
+                      className="diagram-container" 
+                      style={{ 
+                        marginTop: '16px', 
+                        padding: '16px', 
+                        background: 'rgba(255,255,255,0.02)', 
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        overflowX: 'auto'
+                      }}
+                      dangerouslySetInnerHTML={{ __html: q.diagram.content }} 
+                    />
+                  )}
                 </div>
               </div>
 

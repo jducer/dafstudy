@@ -32,4 +32,6 @@ model QuestionAnswer {
   isCorrect       Boolean
   isRectified     Boolean    @default(false)
   rectifiedAnswer String?
+  diagramType     String?
+  diagramContent  String?
 }

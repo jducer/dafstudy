@@ -16,16 +16,19 @@ export async function GET() {
             questionId: true,
             isCorrect: true,
             isRectified: true,
+            diagramType: true,
+            diagramContent: true,
           },
         },
       },
     })
     return NextResponse.json(tests)
   } catch (err) {
-    console.error('GET /api/tests error:', err)
-    return NextResponse.json({ error: 'Failed to fetch tests' }, { status: 500 })
+    console.error('GET /api/tests full error:', err)
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
   }
 }
+
 
 export async function POST(request: Request) {
   try {
@@ -37,6 +40,8 @@ export async function POST(request: Request) {
       questionText: string
       correctAnswer: string
       userAnswer: string
+      diagramType?: string
+      diagramContent?: string
     }[] = body.answers
 
     if (!Array.isArray(answers) || answers.length === 0) {

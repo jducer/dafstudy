@@ -12,18 +12,11 @@ import path from 'path'
 const dbPath = path.join(process.cwd(), 'prisma', 'main', 'dev.db')
 
 const globalForPrisma = globalThis as unknown as { 
-  prismaMain: PrismaClient,
-  sqliteMain: Database.Database 
+  prismaMain: PrismaClient 
 }
 
 function createPrismaClient(): PrismaClient {
-  // Create or reuse the underlying SQLite connection
-  if (!globalForPrisma.sqliteMain) {
-    globalForPrisma.sqliteMain = new Database(dbPath)
-  }
-  
-  // Initialize the Prisma adapter with the existing connection
-  const adapter = new PrismaBetterSqlite3(globalForPrisma.sqliteMain)
+  const adapter = new PrismaBetterSqlite3({ url: dbPath })
   return new PrismaClient({ adapter })
 }
 
@@ -32,3 +25,4 @@ export const prismaMain = globalForPrisma.prismaMain ?? createPrismaClient()
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prismaMain = prismaMain
 }
+

@@ -16,6 +16,8 @@ interface QuestionAnswer {
   isRectified: boolean
   rectifiedAnswer: string | null
   options?: string[]
+  diagramType?: string
+  diagramContent?: string
 }
 
 interface TestResult {
@@ -297,6 +299,20 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     {isRectifiedCorrectly && <span className="badge-rectified">⭐ Rectified</span>}
                   </div>
                   <p style={{ fontWeight: 700, fontSize: '1rem', lineHeight: 1.5 }}>{answer.questionText}</p>
+                  {answer.diagramType === 'svg' && answer.diagramContent && (
+                    <div 
+                      className="diagram-container" 
+                      style={{ 
+                        marginTop: '16px', 
+                        padding: '16px', 
+                        background: 'rgba(255,255,255,0.02)', 
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        overflowX: 'auto'
+                      }}
+                      dangerouslySetInnerHTML={{ __html: answer.diagramContent }} 
+                    />
+                  )}
                 </div>
               </div>
 
