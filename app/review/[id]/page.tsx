@@ -51,17 +51,23 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
   useEffect(() => {
     fetch(`/api/tests/${id}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error('Not found')
+        return r.json()
+      })
       .then((data: TestResult) => {
         setTest(data)
         const initialShown: Record<number, boolean> = {}
-        data.answers.forEach(a => {
+        data.answers?.forEach(a => {
           if (a.solutionRevealed) initialShown[a.id] = true
         })
         setShownAnswers(initialShown)
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        setTest(null)
+        setLoading(false)
+      })
   }, [id])
 
   const askSparky = async (answer: QuestionAnswer, explainMode = false, expoundMode = false) => {
