@@ -537,3 +537,126 @@ Import trace:
   App Route:
     ./lib/db.ts
     ./app/api/tests/route.ts 
+POST /api/tests error: Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.testResult.create()` invocation:
+
+
+attempt to write a readonly database
+    at qr.handleRequestError (lib/generated/main/runtime/client.js:69:8172)
+    at qr.handleAndLogRequestError (lib/generated/main/runtime/client.js:69:7467)
+    at qr.request (lib/generated/main/runtime/client.js:69:7174)
+    at async a (lib/generated/main/runtime/client.js:79:5816)
+    at async POST (app/api/tests/route.ts:92:24)
+  67 | ...
+  68 | ...
+> 69 | ...t c=s?{modelName:s,...t.meta}:t.meta;throw new w.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'SQLITE_READONLY_DBMOVED',
+  meta: { modelName: 'TestResult' },
+  clientVersion: '7.2.0'
+}
+ POST /api/tests 500 in 221ms (next.js: 92ms, application-code: 129ms)
+ GET /test 200 in 110ms (next.js: 42ms, application-code: 67ms)
+⨯ ./app/test/page.tsx:403:1
+Expected '}', got '<eof>'
+  [90m401 |[0m   )
+  [90m402 |[0m }
+[31m[1m>[0m [90m403 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+ GET /test 500 in 12ms (next.js: 6ms, application-code: 5ms)
+⨯ ./app/test/page.tsx:403:1
+Expected '}', got '<eof>'
+  [90m401 |[0m   )
+  [90m402 |[0m }
+[31m[1m>[0m [90m403 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+ GET /test 500 in 7ms (next.js: 2ms, application-code: 4ms)
+✓ Compiled in 76ms
+[browser] ./app/test/page.tsx:403:1
+Expected '}', got '<eof>'
+  401 |   )
+  402 | }
+> 403 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component] 
+[browser] Uncaught Error: ./app/test/page.tsx:403:1
+Expected '}', got '<eof>'
+  401 |   )
+  402 | }
+> 403 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./app/test/page.tsx:403:1)
+    at <unknown> (Error: (./app/test/page.tsx:403:1)
+[browser] ./app/test/page.tsx:403:1
+Expected '}', got '<eof>'
+  401 |   )
+  402 | }
+> 403 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./app/test/page.tsx [Client Component Browser]
+    ./app/test/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/test/page.tsx [Client Component SSR]
+    ./app/test/page.tsx [Server Component] 
+✓ Compiled in 23ms
+ GET /test 200 in 139ms (next.js: 49ms, application-code: 90ms)
+ GET /test 200 in 34ms (next.js: 1180µs, application-code: 33ms)
+✓ Compiled in 15ms

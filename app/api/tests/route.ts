@@ -103,8 +103,8 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(testResult, { status: 201 })
-  } catch (err) {
+  } catch (err: any) {
     console.error('POST /api/tests error:', err)
-    return NextResponse.json({ error: 'Failed to save test' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to save test', details: err.message || String(err) }, { status: 500 })
   }
 }

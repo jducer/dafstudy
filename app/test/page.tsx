@@ -49,6 +49,23 @@ export default function TestPage() {
     setAnswers((prev) => ({ ...prev, [questionId]: valueStr }))
   }
 
+  const handleFillSampleAnswers = () => {
+    const fresh: Record<string, string> = {}
+    questions.forEach((q) => {
+      if (q.type === 'multiple-select') {
+        fresh[q.id] = JSON.stringify([(q as any).correctAnswers[0]])
+      } else if (q.type === 'two-part') {
+        const payload = JSON.stringify({ partA: (q as any).partA?.options?.[1] || '0', partB: (q as any).partB?.options?.[0] || '1' })
+        fresh[q.id] = payload
+      } else if (q.type === 'free-response') {
+        fresh[q.id] = '999'
+      } else {
+        fresh[q.id] = (q as any).options?.[0] || 'A'
+      }
+    })
+    setAnswers(fresh)
+  }
+
   const handleSubmit = async () => {
     if (!allAnswered) return
     setSubmitting(true)
@@ -83,11 +100,13 @@ export default function TestPage() {
         body: JSON.stringify({ answers: payload }),
       })
 
-      if (!res.ok) throw new Error('Submission failed')
       const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.details || 'Submission failed')
+      }
       router.push(`/review/${data.id}`)
-    } catch (e) {
-      setError('Something went wrong. Please try again.')
+    } catch (e: any) {
+      setError(e.message || 'Something went wrong. Please try again.')
       setSubmitting(false)
     }
   }
@@ -113,7 +132,17 @@ export default function TestPage() {
             borderRadius: '12px',
             padding: '12px 20px',
             textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
           }}>
+            <button 
+              onClick={handleFillSampleAnswers} 
+              style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', background: 'transparent', border: 'none', cursor: 'pointer', marginBottom: '4px' }}
+              title="Debug: Auto-fill"
+            >
+              fill sample answers
+            </button>
             <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-blue)' }}>
               {answeredCount} / {questions.length}
             </div>
