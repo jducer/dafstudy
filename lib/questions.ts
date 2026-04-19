@@ -183,10 +183,27 @@ export const questionBank: Question[] = [
   { id: 'SAV-024', standard: 'MA.5.FR.2.4', text: 'How many 1/5-cup servings are in 4 cups of soup?', options: ['20', '9', '4/5', '1.25'], correctAnswer: '20', explanation: '4 ÷ 1/5 = 4 × 5 = 20.' },
 ]
 
+const struggleStandards = [
+  'MA.5.NSO.2.4',
+  'MA.5.NSO.2.5',
+  'MA.5.GR.3.1',
+  'MA.5.AR.1.1',
+  'MA.5.NSO.2.5',
+  'MA.5.FR.1.1',
+  'MA.5.M.2.1',
+  'MA.5.AR.2.1',
+  'MA.5.AR.2.2',
+  'MA.5.AR.1.2',
+  'MA.5.DP.1.1',
+  'MA.5.NSO.1.2',
+]
+
 /**
  * Returns a randomly shuffled array of `count` questions from the bank.
+ * Filters ONLY for standards the user's daughter needs work on.
  */
-export function getRandomQuestions(count: number = 40): Question[] {
-  const shuffled = [...questionBank].sort(() => Math.random() - 0.5)
+export function getRandomQuestions(count: number = 10): Question[] {
+  const filtered = questionBank.filter(q => struggleStandards.includes(q.standard))
+  const shuffled = [...filtered].sort(() => Math.random() - 0.5)
   return shuffled.slice(0, Math.min(count, shuffled.length))
 }
