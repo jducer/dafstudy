@@ -82,9 +82,14 @@ export default function TestPage() {
           correctValueStr = (q as any).correctAnswer ?? ''
         }
 
+        let questionText = q.text
+        if (q.type === 'two-part') {
+          questionText = `${q.text}\nPART A: ${q.partA.text}\nPART B: ${q.partB.text}`
+        }
+
         return {
           questionId: q.id,
-          questionText: q.text,
+          questionText,
           correctAnswer: correctValueStr,
           userAnswer: answers[q.id] ?? '',
           options: (q as any).options ?? undefined,

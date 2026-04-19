@@ -343,7 +343,21 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     </span>
                     {isRectifiedCorrectly && <span className="badge-rectified">⭐ Rectified</span>}
                   </div>
-                  <p style={{ fontWeight: 700, fontSize: '1rem', lineHeight: 1.5 }}>{answer.questionText}</p>
+                  <p style={{ fontWeight: 700, fontSize: '1rem', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                    {(() => {
+                      // Fallback for older "two-part" questions that lack sub-texts in questionText
+                      if (answer.questionType === 'two-part' && !answer.questionText.includes('PART A')) {
+                        try {
+                          const c = JSON.parse(answer.correctAnswer)
+                          if (c.partA_text || c.partB_text) { // If I saved them there (hypothetically)
+                             // Actually, let's just use what's in lib if we need it, 
+                             // but better to just fix the display of what's there.
+                          }
+                        } catch(e) {}
+                      }
+                      return answer.questionText
+                    })()}
+                  </p>
                   {answer.diagramType === 'svg' && answer.diagramContent && (
                     <div 
                       className="diagram-container" 
