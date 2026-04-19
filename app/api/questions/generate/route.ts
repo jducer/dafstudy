@@ -53,8 +53,8 @@ export async function POST() {
           "standard": "...",
           "type": "single-choice" | "multiple-select" | "free-response",
           "text": "...",
-          "options": ["A", "B", "C", "D"], 
-          "correctAnswer": "Exact matching string", 
+          "options": ["Option 1", "Option 2", "Option 3", "Option 4"], 
+          "correctAnswer": "The exact string from the options list", 
           "diagramRequest": { "helper": "...", ...REQUIRED_ARGS_LISTED_ABOVE },
           "explanation": "Detailed step-by-step logic..."
         }
