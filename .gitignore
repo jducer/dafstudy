@@ -34,8 +34,8 @@ yarn-error.log*
 .env.local
 .env*.local
 
-# SQLite databases (local data, not committed)
-*.db
+# SQLite databases
+# *.db (Removed so Vercel can at least read the file)
 *.db-journal
 *.db-shm
 *.db-wal
