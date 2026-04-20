@@ -35,16 +35,21 @@ export async function POST() {
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
       Your task is to generate 10 rigorous, mathematically perfect questions for "Dafne".
       
-      ACCURACY & SOLVABILITY GATE (MANDATORY):
-      For EVERY question, you MUST perform a "Verification Pass":
+      TEST DIVERSITY & RIGOR (MANDATORY):
+      - NO REPETITION: Do not use the same diagram type (e.g. barChart) more than twice in one test.
+      - MULTI-STANDARD MIX: Randomly select a different standard for every question.
+      - TOPIC SHUFFLE: Ensure a mix of fractions, geometry, area/volume, and data analysis.
+      - VISUAL DIVERSITY: You MUST use a different helper for at least 6 questions (Coordinate Plane, Polygon, Number Line, Fraction Box, Bar Chart, Cube Stack).
+      
+      ACCURACY & SOLVABILITY GATE:
       1. Calculate exact decimal values. Verify comparisons are 100% true.
-      2. Ensure exactly ONE option is correct. YOU MUST perform a "Distractor Audit": Verify that the 3 incorrect options are 100% mathematically false based on the prompt.
-      3. **STRICT SOLVABILITY**: You MUST NOT mention a table, chart, map, or picture in your question text unless you have provided it in the "diagramRequest".
-      4. **VISUAL SINGLE-SHOT**: Since we only show ONE diagram per question, do not ask "Which fraction box..." or "Which of these charts..." if you are comparing 4 different visuals. If you want a visual comparison, you MUST build one consolidated diagram (e.g., a single line plot or bar chart) and ask a question about it.
+      2. Ensure exactly ONE option is correct. Perform a "Distractor Audit."
+      3. **STRICT SOLVABILITY**: No "ghost tables." Every visual referenced must be provided in diagramRequest.
+      4. **VISUAL SINGLE-SHOT**: One diagram per question. Comparison visuals MUST be consolidated into one diagram helper.
       
       TEST STRUCTURE:
-      - RATIO: Exactly 8 questions MUST be 'single-choice'. Exactly 2 questions MUST be 'free-response' or 'multiple-select'.
-      - DIAGRAMS: Use them for at least 6 questions (DP, GR, FR standards).
+      - RATIO: Exactly 8 single-choice. Exactly 2 others.
+      - LANGUAGE: Keep it encouraging and clear for a 5th grader.
       
       DIAGRAM SCHEMAS (REQUIRED PROPERTIES):
       - coordinatePlane: { "helper": "coordinatePlane", "points": [{ "x": number, "y": number, "label": string }] }
