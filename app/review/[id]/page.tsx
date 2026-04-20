@@ -54,29 +54,18 @@ function speakText(text: string) {
     // First, try to see whatever the OS marks as the actual default.
     let selectedVoice = voices.find(v => v.default)
 
-    // Ranked list of preferred premium/natural voices available on most OS/Browsers
-    const preferredVoices = [
-      'Samantha',
-      'Alex',
-      'Ava',
-      'Allison',
-      'Susan',
-      'Google US English' // Chrome premium
-    ]
-    
-    if (!selectedVoice || selectedVoice.name.includes('Fred') || selectedVoice.name.includes('Ralph')) {
-      // Prioritize "Enhanced" or "Premium" versions of the preferred voices (Mac specific)
-      for (const preferred of preferredVoices) {
-        selectedVoice = voices.find(v => v.name.includes(preferred) && (v.name.includes('Premium') || v.name.includes('Enhanced')))
-        if (selectedVoice) break
-      }
+    // Fallbacks: Explicitly hunt for Premium or Enhanced neural voices, avoiding old robotic ones.
+    if (!selectedVoice || selectedVoice.name.match(/Fred|Ralph|Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Pipe Organ|Trinoids|Whisper|Zarvox/)) {
+      
+      // Look exclusively for high-fidelity voices
+      selectedVoice = voices.find(v => 
+        v.lang.startsWith('en') && 
+        (v.name.includes('Premium') || v.name.includes('Enhanced') || v.name.includes('Google'))
+      )
 
-      // Standard fallback
+      // If absolutely no premium voice exists, just pick the first standard English voice
       if (!selectedVoice) {
-        for (const preferred of preferredVoices) {
-          selectedVoice = voices.find(v => v.name.includes(preferred))
-          if (selectedVoice) break
-        }
+        selectedVoice = voices.find(v => v.lang.startsWith('en'))
       }
     }
     
