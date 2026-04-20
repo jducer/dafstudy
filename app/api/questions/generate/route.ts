@@ -38,7 +38,7 @@ export async function POST() {
     
     const prompt = `
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
-      Generate 8 rigorous, mathematically perfect questions in a JSON ARRAY.
+      Generate 10 rigorous, mathematically perfect questions in a JSON ARRAY.
       
       ACCURACY GATE:
       1. Calculate exact decimal values. Verify comparisons are 100% true.
@@ -52,6 +52,14 @@ export async function POST() {
       - Use random names (Alex, Sam, Taylor, Jordan). NO "Dafne".
       - Standard field MUST be the code only (e.g. MA.5.NSO.1.1).
 
+      DIAGRAM SCHEMAS (REQUIRED PARAMETERS):
+      - coordinatePlane: { "helper": "coordinatePlane", "points": [{ "x": number, "y": number, "label": string }] }
+      - polygon: { "helper": "polygon", "points": [[x,y], [x,y], [x,y]] }
+      - barChart: { "helper": "barChart", "data": [{ "label": string, "value": number }], "yMax": number }
+      - fractionBox: { "helper": "fractionBox", "numerator": number, "denominator": number }
+      - numberLinePlot: { "helper": "numberLinePlot", "points": [{ "value": number, "count": number }], "minVal": number, "maxVal": number, "step": number }
+      - cubeStack: { "helper": "cubeStack", "width": number, "height": number, "depth": number }
+
       SCHEMA:
       [
         {
@@ -61,7 +69,7 @@ export async function POST() {
           "text": "string",
           "options": ["string", "string", "string", "string"], 
           "correctAnswer": "string", 
-          "diagramRequest": { "helper": "coordinatePlane" | "polygon" | "barChart" | "fractionBox" | "numberLinePlot" | "cubeStack", ...params },
+          "diagramRequest": { "helper": "NAME_FROM_LIST_ABOVE", ...params_matching_schema_above },
           "explanation": "string"
         }
       ]
@@ -73,10 +81,12 @@ export async function POST() {
     const responseText = result.response.text()
     
     // Robust cleanup before parsing
-    const cleanJson = responseText.substring(
-      responseText.indexOf('['),
-      responseText.lastIndexOf(']') + 1
-    )
+    const startIdx = responseText.indexOf('[')
+    const endIdx = responseText.lastIndexOf(']')
+    if (startIdx === -1 || endIdx === -1) {
+      throw new Error('AI failed to return a valid JSON array')
+    }
+    const cleanJson = responseText.substring(startIdx, endIdx + 1)
     const rawQuestions = JSON.parse(cleanJson)
 
     // PROCESS DIAGRAMS
@@ -84,19 +94,34 @@ export async function POST() {
       let diagram = null
       if (q.diagramRequest) {
         const { helper, ...args } = q.diagramRequest
+        console.log(`[GEN] Building ${helper} for ${q.id}`)
         let content = ''
         try {
-          if (helper === 'coordinatePlane') content = drawCoordinatePlane(args.points)
-          else if (helper === 'polygon') content = drawPolygon(args.points)
-          else if (helper === 'barChart') content = drawBarChart(args.data, args.yMax)
-          else if (helper === 'fractionBox') content = drawFractionBox(args.numerator, args.denominator)
-          else if (helper === 'numberLinePlot') content = drawNumberLinePlot(args.points, args.minVal, args.maxVal, args.step)
-          else if (helper === 'cubeStack') content = draw3DCubeStack(args.width, args.height, args.depth)
+          if (helper === 'coordinatePlane') content = drawCoordinatePlane(args.points || [])
+          else if (helper === 'polygon') content = drawPolygon(args.points || [])
+          else if (helper === 'barChart') content = drawBarChart(args.data || [], args.yMax)
+          else if (helper === 'fractionBox') content = drawFractionBox(args.numerator || 0, args.denominator || 1)
+          else if (helper === 'numberLinePlot') {
+            const minStr = String(args.minVal || 0)
+            const maxStr = String(args.maxVal || 10)
+            content = drawNumberLinePlot(
+              args.points || [], 
+              parseFloat(minStr), 
+              parseFloat(maxStr), 
+              parseFloat(String(args.step || 1))
+            )
+          }
+          else if (helper === 'cubeStack') content = draw3DCubeStack(args.width || 1, args.height || 1, args.depth || 1)
           
           if (content) {
+            console.log(`[GEN] Visual Success: ${q.id}`)
             diagram = { type: 'svg', content }
+          } else {
+            console.warn(`[GEN] Visual Empty: ${q.id} (helper: ${helper})`)
           }
-        } catch (e) {}
+        } catch (e: any) {
+          console.error(`[GEN] Visual Error: ${q.id}`, e.message)
+        }
       }
       return { ...q, diagram }
     })
