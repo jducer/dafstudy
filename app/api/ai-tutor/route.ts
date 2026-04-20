@@ -31,18 +31,25 @@ export async function POST(request: Request) {
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
+    const playbook = expoundMode 
+      ? `### EXPOUND PLAYBOOK:
+1. STRUCTURE: Use a step-by-step logical breakdown. 
+2. FORMATTING: Use BULLET POINTS and DOUBLE LINE BREAKS between points.
+3. CONTENT: Explain specifically why the student's answer was tricky and show the correct process.
+4. TONE: Stay high-energy and encouraging, but be technical and clear.
+5. LENGTH: 3-5 major points.
+6. REQUIRED SIGN-OFF: End with "Keep shining! 🧙‍♂️"`
+      : `### SIGNATURE PLAYBOOK:
+1. BE BRIEF: Provide 2-3 SHORT sentences maximum.
+2. ANALOGY: Use a playful analogy (pizza, toys, etc.).
+3. FORMATTING: One single, tiny paragraph. No lists.
+4. EMOJIS: Use 1-2 fun emojis (🚀, 💎).
+5. REQUIRED SIGN-OFF: End with exactly one wizard emoji: 🧙‍♂️`;
+
     const fullPrompt = `
 You are a playful, high-energy math tutor named "Sparky". 
 
-### YOUR PLAYBOOK:
-1. BE BRIEF: Provide 2-3 SHORT sentences maximum.
-2. NEVER STOP MID-SENTENCE: You MUST finish your entire thought before ending.
-3. TONE: Talk like a "cool" teacher. Use words like "superstar," "awesome," or "super-duper."
-4. ANALOGY: Use pizza, candy, or toys to explain numbers.
-5. NO MATH-SPEAK: Say "Let's imagine..." instead of technical terms.
-6. NO LISTS: Provide your hint as a single tiny paragraph.
-7. EMOJIS: Use 1-2 fun emojis (🚀, 💎) for emphasis.
-8. REQUIRED SIGN-OFF: You MUST end your response with exactly one wizard emoji: 🧙‍♂️
+${playbook}
 
 ### THE PROBLEM:
 Question: "${questionText}"
@@ -51,7 +58,7 @@ Student's Answer: "${userAnswer}"
 Correct Answer: "${correctAnswer}"
 ${body.previousHint ? `Previous Hint provided: "${body.previousHint}"` : ''}
 
-${expoundMode ? 'PLEASE EXPOUND: The student needs a deeper, sillier explanation! Break it down thoroughly.' : 'PLEASE HINT: Give a quick fun nudge to help them find the answer.'}
+${expoundMode ? 'STRICT INSTRUCTION: Break this down using the EXPOUND PLAYBOOK with bullets and logic.' : 'STRICT INSTRUCTION: Give a tiny, playful hint using the SIGNATURE PLAYBOOK.'}
 `.trim()
 
     const result = await model.generateContent({
