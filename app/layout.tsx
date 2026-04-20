@@ -1,5 +1,7 @@
 // app/layout.tsx
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Sparky Study – Florida FAST Math Practice',
