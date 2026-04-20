@@ -34,73 +34,63 @@ function stripMarkdown(text: string): string {
     .replace(/([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/g, '')
 }
 
-/** Uses Web Speech API to read text aloud with a better voice and async loading */
+/** Uses Google's cloud TTS for guaranteed high-quality natural voice, bypassing OS limitations */
 function speakText(text: string) {
-  if (!('speechSynthesis' in window)) return
+  // Stop any currently playing browser speech just in case
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+  }
   
-  // Browsers load voices asynchronously, so they might be empty initially.
-  // We use a recursive attempt to wait for them to populate.
-  const attemptSpeak = (retries = 0) => {
-    const voices = window.speechSynthesis.getVoices()
+  // Stop any currently playing custom audio (we attach it to the window to track it)
+  if ((window as any).currentSparkyAudio) {
+    let oldAudio = (window as any).currentSparkyAudio as HTMLAudioElement
+    oldAudio.pause()
+    oldAudio.src = ''
+  }
+
+  const cleanText = stripMarkdown(text)
+  // Google TTS has a 200 character limit per request. Split by punctuation to keep phrasing natural.
+  const chunks = cleanText.match(/[^.!?]+[.!?]+/g) || [cleanText]
+  
+  let currentChunk = 0
+
+  const playNext = () => {
+    if (currentChunk >= chunks.length) return
     
-    if (voices.length === 0 && retries < 10) {
-      setTimeout(() => attemptSpeak(retries + 1), 100)
+    let chunkText = chunks[currentChunk].trim()
+    if (!chunkText) {
+      currentChunk++
+      playNext()
       return
     }
 
-    // Stop any currently playing speech
-    window.speechSynthesis.cancel()
+    // Unofficial Google Translate TTS endpoint (high quality, natural voice)
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunkText)}&tl=en&client=tw-ob`
+    const audio = new Audio(url)
+    ;(window as any).currentSparkyAudio = audio
     
-    const utterance = new SpeechSynthesisUtterance(stripMarkdown(text))
-    
-    // Ranked list of preferred premium/natural voices available on most OS/Browsers
-    const preferredVoices = [
-      'Google US English', // Chrome premium
-      'Samantha',          // macOS Siri
-      'Alex',              // macOS High Quality
-      'Ava',               // macOS Premium (Newer)
-      'Allison',           // macOS Premium
-      'Susan',             // macOS Premium
-      'Karen',             // macOS Premium
-      'Oliver',            // macOS Premium UK
-      'Daniel'             // macOS Premium UK
-    ]
-    
-    let selectedVoice = null
-    
-    // Prioritize "Enhanced" or "Premium" versions of the preferred voices (Mac specific)
-    for (const preferred of preferredVoices) {
-      selectedVoice = voices.find(v => v.name.includes(preferred) && (v.name.includes('Premium') || v.name.includes('Enhanced')))
-      if (selectedVoice) break
+    audio.onended = () => {
+      currentChunk++
+      playNext()
     }
 
-    // If no premium tag found, fall back to the standard version of preferred voices
-    if (!selectedVoice) {
-      for (const preferred of preferredVoices) {
-        selectedVoice = voices.find(v => v.name.includes(preferred))
-        if (selectedVoice) break
+    audio.onerror = () => {
+      console.warn('[TTS] Google Voice failed, falling back to basic browser voice.')
+      // Ultimate fallback if Google blocks the Audio tag
+      const utterance = new SpeechSynthesisUtterance(chunkText)
+      utterance.onend = () => {
+        currentChunk++
+        playNext()
       }
-    }
-    
-    // Fallback to any decent English voice if premiums aren't found
-    if (!selectedVoice) {
-      selectedVoice = voices.find(v => v.lang.startsWith('en-') && !v.name.includes('Microsoft'))
-    }
-    
-    
-    if (selectedVoice) {
-      utterance.voice = selectedVoice
-      console.log(`[TTS] Using premium voice: ${selectedVoice.name}`)
-    } else {
-      console.warn('[TTS] No premium/enhanced voice found. Using robotic fallback. To fix this on Mac, go to Settings -> Accessibility -> Spoken Content -> System Voice and download Samantha or Ava (Enhanced).')
+      window.speechSynthesis.speak(utterance)
     }
 
-    utterance.rate = 1.0 // Normal speed for premium voices
-    utterance.pitch = 1.05 // slightly elevated for a friendly tone
-    window.speechSynthesis.speak(utterance)
+    audio.play().catch(e => {
+       console.warn('[TTS] Audio play blocked:', e)
+    })
   }
 
-  attemptSpeak()
+  playNext()
 }
 
 interface QuestionAnswer {
