@@ -26,6 +26,27 @@ function renderMarkdown(text: string): string {
     .replace(/^(<br>)+/, '')
 }
 
+/** Strips markdown for TTS reading */
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*/g, '')
+    .replace(/^\* /gm, '')
+    .replace(/([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/g, '')
+}
+
+/** Uses Web Speech API to read text aloud */
+function speakText(text: string) {
+  if (!('speechSynthesis' in window)) return
+  
+  // Stop any currently playing speech
+  window.speechSynthesis.cancel()
+  
+  const utterance = new SpeechSynthesisUtterance(stripMarkdown(text))
+  utterance.rate = 0.95 // slightly slower for clarity
+  utterance.pitch = 1.1 // slightly higher pitch to sound friendly
+  window.speechSynthesis.speak(utterance)
+}
+
 interface QuestionAnswer {
   id: number
   testResultId: number
@@ -499,8 +520,30 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
                   {hint?.text && (
                     <div className="ai-hint-box" style={{ marginBottom: '16px' }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#9b5de5', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        🤖 Sparky says:
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#9b5de5', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          🤖 Sparky says:
+                        </div>
+                        <button
+                          onClick={() => speakText(hint.text!)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '1.2rem',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '50%',
+                            transition: 'background 0.2s',
+                          }}
+                          className="hover-bg-subtle"
+                          title="Read aloud"
+                          aria-label="Read aloud"
+                        >
+                          🔊
+                        </button>
                       </div>
                       <div 
                         style={{ color: 'var(--text-primary)', lineHeight: 1.8, fontSize: '0.95rem' }}

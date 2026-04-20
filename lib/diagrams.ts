@@ -182,7 +182,7 @@ export function drawFractionBox(numerator: number, denominator: number): string 
 /**
  * Returns an SVG of a number line plot with X marks above the numbers.
  */
-export function drawNumberLinePlot(points: { value: number; count: number }[], minVal: number, maxVal: number, step: number = 1): string {
+export function drawNumberLinePlot(points: { value: number; count: number; label?: string }[], minVal: number, maxVal: number, step: number = 1): string {
   const width = 450
   const height = 180
   const paddingX = 30
@@ -214,9 +214,15 @@ export function drawNumberLinePlot(points: { value: number; count: number }[], m
 
   points.forEach((p) => {
     const x = paddingX + ((p.value - minVal) / span) * chartWidth
-    for (let i = 0; i < p.count; i++) {
-      const y = height - paddingY - 15 - i * 15
-      marks += `<text x="${x}" y="${y}" fill="${svgConfig.accent}" font-size="14" text-anchor="middle" font-weight="bold">x</text>`
+    if (p.label) {
+      // Draw a labeled point on the line
+      marks += `<circle cx="${x}" cy="${height - paddingY}" r="5" fill="${svgConfig.accent}" />`
+      marks += `<text x="${x}" y="${height - paddingY - 15}" fill="${svgConfig.accent}" font-size="14" text-anchor="middle" font-weight="bold">${p.label}</text>`
+    } else {
+      for (let i = 0; i < (p.count || 0); i++) {
+        const y = height - paddingY - 15 - i * 15
+        marks += `<text x="${x}" y="${y}" fill="${svgConfig.accent}" font-size="14" text-anchor="middle" font-weight="bold">x</text>`
+      }
     }
   })
 

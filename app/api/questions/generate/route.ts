@@ -50,7 +50,32 @@ export async function POST() {
       - Max 2 barCharts per test. 
       - Mix coordinate planes, number lines, etc.
       - Use random names (Alex, Sam, Taylor, Jordan). NO "Dafne".
-      - Standard field MUST be the code only (e.g. MA.5.NSO.1.1).
+      - The "standard" field MUST be a brief summary of the skill from the TARGETED SKILLS list.
+
+      TARGETED SKILLS (You MUST randomly select skills from this exact list for the questions):
+      1. Use strategies to multiply whole numbers by decimals to hundredths.
+      2. Count unit cubes in a rectangular prism to measure volume.
+      3. Evaluate numerical expressions with non-nested grouping symbols (parentheses, brackets, braces).
+      4. Multiply a decimal number to tenths by 0.1 or 0.01.
+      5. Interpret a fraction as division of the numerator by the denominator (a/b = a / b).
+      6. Solve multi-step real-world problems involving money using decimal notation.
+      7. Determine and explain whether an equation involving any of the four operations is true or false.
+      8. Represent and solve multi-step word problems involving any of the four operations on whole numbers.
+      9. Represent whole-number, fraction, or decimal data in a line plot.
+      10. Convert decimal numbers to thousandths among word form, base-ten numerals, and expanded form.
+      11. Find whole-number quotients of whole numbers with 3-digit dividends and 2-digit divisors.
+      12. Subtract decimals to thousandths using the standard algorithm.
+      13. Given a rule for an arithmetic pattern, use a two-column table to record the inputs and outputs.
+      14. Classify quadrilaterals, squares, rectangles, trapezoids, rhombuses, parallelograms by attributes.
+      15. Given a numerical pattern, identify and write a rule that can describe the pattern as an algebraic expression.
+      16. Name the coordinate pair that describes the location of a given point on the coordinate plane.
+      17. Find the area of a rectangle with fractional side lengths by multiplying the side lengths.
+      18. Use strategies to subtract decimals to thousandths.
+      19. Convert metric length units within the same system to solve multi-step problems.
+      20. Add fractions with unlike denominators, including mixed numbers and fractions greater than 1.
+      21. Divide whole numbers by unit fractions.
+      22. Compose and decompose multi-digit numbers with decimals to the thousandths in multiple ways.
+      23. When multiplying a number by a fraction less than 1 or greater than 1, predict/explain relative size.
 
       QUESTION TYPE MIX (MANDATORY — DO NOT DEVIATE):
       - Exactly 7 questions must be type "single-choice"
@@ -62,7 +87,7 @@ export async function POST() {
       - polygon: { "helper": "polygon", "points": [[x,y], [x,y], [x,y]] }
       - barChart: { "helper": "barChart", "data": [{ "label": string, "value": number }], "yMax": number }
       - fractionBox: { "helper": "fractionBox", "numerator": number, "denominator": number }
-      - numberLinePlot: { "helper": "numberLinePlot", "points": [{ "value": number, "count": number }], "minVal": number, "maxVal": number, "step": number }
+      - numberLinePlot: { "helper": "numberLinePlot", "points": [{ "value": number, "count": number, "label": "string (optional, e.g. 'A')" }], "minVal": number, "maxVal": number, "step": number }
       - cubeStack: { "helper": "cubeStack", "width": number, "height": number, "depth": number }
 
       OUTPUT SCHEMA (per question type):
