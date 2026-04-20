@@ -34,58 +34,60 @@ function stripMarkdown(text: string): string {
     .replace(/([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/g, '')
 }
 
-/** Browser TTS: the browser sandbox heavily limits which voices it can "see" to protect privacy. */
-function speakText(text: string) {
-  if (!('speechSynthesis' in window)) return
+/** Uses Google Cloud TTS API endpoint to completely bypass OS/Browser limitations */
+async function speakText(text: string) {
+  stopText() // Stop existing native or custom TTS
+
+  const cleanText = stripMarkdown(text)
   
-  window.speechSynthesis.cancel() // Stop existing
-
-  const attemptSpeak = (retries = 0) => {
-    const voices = window.speechSynthesis.getVoices()
+  try {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: cleanText })
+    })
     
-    if (voices.length === 0 && retries < 10) {
-      setTimeout(() => attemptSpeak(retries + 1), 100)
-      return
-    }
+    if (!res.ok) throw new Error('TTS API failed')
+    const data = await res.json()
+    if (!data.chunks || data.chunks.length === 0) return
 
-    const cleanText = stripMarkdown(text)
-    const utterance = new SpeechSynthesisUtterance(cleanText)
-    
-    // First, try to see whatever the OS marks as the actual default.
-    let selectedVoice = voices.find(v => v.default)
+    let currentChunk = 0
 
-    // Fallbacks: Explicitly hunt for Premium or Enhanced neural voices, avoiding old robotic ones.
-    if (!selectedVoice || selectedVoice.name.match(/Fred|Ralph|Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Pipe Organ|Trinoids|Whisper|Zarvox/)) {
+    const playNext = () => {
+      if (currentChunk >= data.chunks.length) return
       
-      // Look exclusively for high-fidelity voices
-      selectedVoice = voices.find(v => 
-        v.lang.startsWith('en') && 
-        (v.name.includes('Premium') || v.name.includes('Enhanced') || v.name.includes('Google'))
-      )
-
-      // If absolutely no premium voice exists, just pick the first standard English voice
-      if (!selectedVoice) {
-        selectedVoice = voices.find(v => v.lang.startsWith('en'))
+      const chunk = data.chunks[currentChunk]
+      const audio = new Audio(`data:audio/mp3;base64,${chunk.base64}`)
+      ;(window as any).currentSparkyAudio = audio
+      
+      audio.onended = () => {
+        currentChunk++
+        playNext()
       }
-    }
-    
-    if (selectedVoice) {
-      utterance.voice = selectedVoice
-      console.log(`[TTS] Using browser voice: ${selectedVoice.name}`)
+
+      audio.play().catch(e => console.warn('[TTS] Audio play blocked:', e))
     }
 
-    utterance.rate = 1.0
-    utterance.pitch = 1.05
-    window.speechSynthesis.speak(utterance)
+    playNext()
+  } catch (error) {
+    console.error('[TTS] Cloud API Error, falling back to browser:', error)
+    // Absolute worst-case fallback
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(cleanText))
+    }
   }
-
-  attemptSpeak()
 }
 
-/** Stop any playing speech */
+/** Stop any playing speech (both browser and custom cloud audio) */
 function stopText() {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel()
+  }
+  if ((window as any).currentSparkyAudio) {
+    let oldAudio = (window as any).currentSparkyAudio as HTMLAudioElement
+    oldAudio.pause()
+    oldAudio.src = ''
+    ;(window as any).currentSparkyAudio = null
   }
 }
 
