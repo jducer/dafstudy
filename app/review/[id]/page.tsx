@@ -34,12 +34,17 @@ function stripMarkdown(text: string): string {
     .replace(/([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/g, '')
 }
 
-/** Uses Google Cloud TTS API endpoint to completely bypass OS/Browser limitations */
-async function speakText(text: string) {
-  stopText() // Stop existing native or custom TTS
+/** Uses Google Cloud TTS API endpoint with improved chunk handling and player safety */
+async function speakText(text: string, id: number) {
+  stopText() // Stop existing custom TTS
+
+  // Add a "speaking" state to the UI
+  const btn = document.getElementById(`speaker-btn-${id}`)
+  if (btn) btn.classList.add('pulse-speaking')
+
+  const cleanText = stripMarkdown(text)
   
   try {
-    const cleanText = stripMarkdown(text)
     const res = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,38 +53,47 @@ async function speakText(text: string) {
     
     if (!res.ok) throw new Error('TTS API failed')
     const data = await res.json()
-    if (!data.chunks || data.chunks.length === 0) return
+    if (!data.chunks || data.chunks.length === 0) {
+       if (btn) btn.classList.remove('pulse-speaking')
+       return
+    }
 
     let currentChunk = 0
 
     const playNext = () => {
-      if (currentChunk >= data.chunks.length) return
+      if (currentChunk >= data.chunks.length) {
+        if (btn) btn.classList.remove('pulse-speaking')
+        return
+      }
       
       const chunk = data.chunks[currentChunk]
       const audio = new Audio(`data:audio/mp3;base64,${chunk.base64}`)
       ;(window as any).currentSparkyAudio = audio
       
-      audio.onerror = () => {
-        console.warn('[TTS] Google Voice failed to load chunk. Not falling back to robot voice.')
-        currentChunk++
-        playNext()
-      }
-
       audio.onended = () => {
         currentChunk++
         playNext()
       }
 
-      audio.play().catch(e => console.warn('[TTS] Audio play blocked:', e))
+      audio.onerror = () => {
+        console.error('[TTS] Audio playback error')
+        if (btn) btn.classList.remove('pulse-speaking')
+      }
+
+      audio.play().catch(e => {
+        console.warn('[TTS] Audio play blocked:', e)
+        if (btn) btn.classList.remove('pulse-speaking')
+      })
     }
 
     playNext()
   } catch (error) {
-    console.error('[TTS] Cloud API Error. Robotic fallback is disabled per user request:', error)
+    console.error('[TTS] Cloud API Error:', error)
+    if (btn) btn.classList.remove('pulse-speaking')
   }
 }
 
-/** Stop any playing speech (both browser and custom cloud audio) */
+/** Stop any playing custom cloud audio */
 function stopText() {
   if ((window as any).currentSparkyAudio) {
     let oldAudio = (window as any).currentSparkyAudio as HTMLAudioElement
@@ -87,6 +101,8 @@ function stopText() {
     oldAudio.src = ''
     ;(window as any).currentSparkyAudio = null
   }
+  // Clear all speaking pulses
+  document.querySelectorAll('.pulse-speaking').forEach(el => el.classList.remove('pulse-speaking'))
 }
 
 interface QuestionAnswer {
@@ -302,6 +318,18 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px 80px' }}>
+      <style>{`
+        @keyframes pulse-speak {
+          0% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.3); opacity: 1; color: #9b5de5; }
+          100% { transform: scale(1); opacity: 0.8; }
+        }
+        .pulse-speaking {
+          animation: pulse-speak 1s infinite ease-in-out;
+          color: #9b5de5 !important;
+          opacity: 1 !important;
+        }
+      `}</style>
       {/* Back link */}
       <Link href="/dashboard">
         <button className="btn-secondary" style={{ marginBottom: '24px', padding: '8px 18px', fontSize: '0.875rem' }}>
@@ -568,7 +596,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         </div>
                         <div style={{ display: 'flex', gap: '4px' }}>
                           <button
-                            onClick={() => speakText(hint.text!)}
+                            id={`speaker-btn-${answer.id}`}
+                            onClick={() => speakText(hint.text!, answer.id)}
                             style={{
                               background: 'none',
                               border: 'none',
@@ -579,7 +608,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               alignItems: 'center',
                               justifyContent: 'center',
                               borderRadius: '50%',
-                              transition: 'background 0.2s',
+                              transition: 'all 0.2s',
                             }}
                             className="hover-bg-subtle"
                             title="Read aloud"

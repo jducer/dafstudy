@@ -48,11 +48,13 @@ export async function POST() {
       
       DIVERSITY:
       - Max 2 barCharts per test. 
-      - Mix coordinate planes, number lines, etc.
-      - Use random names (Alex, Sam, Taylor, Jordan). NO "Dafne".
+      - Mix coordinate planes, number lines, cubeStacks, and polygons.
+      - Use random names for people in word problems (e.g., Alex, Sam, Taylor, Jordan, Chloe, Liam, Maya, Ethan). 
+      - CRITICAL: DO NOT use the name "Dafne" in any questions.
+      - Ensure the wording is concise. DO NOT repeat the question in the "standard" field.
       - The "standard" field MUST be a brief summary of the skill from the TARGETED SKILLS list.
 
-      TARGETED SKILLS (You MUST randomly select skills from this exact list for the questions):
+      TARGETED SKILLS (Randomly select from this list):
       1. Use strategies to multiply whole numbers by decimals to hundredths.
       2. Count unit cubes in a rectangular prism to measure volume.
       3. Evaluate numerical expressions with non-nested grouping symbols (parentheses, brackets, braces).
