@@ -1,9 +1,9 @@
 'use client'
 // app/test/page.tsx — Take the 40-question randomized test
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Question } from '@/lib/questions'
+import { getRandomQuestions, Question } from '@/lib/questions'
 
 type Answers = Record<string, string> // questionId -> selectedOption
 
@@ -26,7 +26,14 @@ export default function TestPage() {
   const answeredCount = Object.keys(answers).length
   const allAnswered = questions.length > 0 && answeredCount === questions.length
 
-
+  const startStaticTest = useCallback(() => {
+    const qs = getRandomQuestions(10)
+    setQuestions(qs)
+    setAnswers({})
+    setCurrentPage(0)
+    setTestStarted(true)
+    setTestMode('static')
+  }, [])
 
   const startDynamicTest = async () => {
     setGenerating(true)
@@ -40,9 +47,8 @@ export default function TestPage() {
       setCurrentPage(0)
       setTestStarted(true)
       setTestMode('dynamic')
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e)
-      setError(msg)
+    } catch (e: any) {
+      setError(e.message)
     } finally {
       setGenerating(false)
     }
@@ -93,19 +99,19 @@ export default function TestPage() {
     const fresh: Record<string, string> = {}
     questions.forEach((q) => {
       if (q.type === 'multiple-select') {
-        const ca = q.correctAnswers || []
+        const ca = (q as any).correctAnswers || (q as any).correctAnswer || []
         const first = Array.isArray(ca) ? ca[0] : ca
         fresh[q.id] = JSON.stringify([first || ''])
       } else if (q.type === 'two-part') {
         const payload = JSON.stringify({ 
-          partA: q.partA.options[0] || '', 
-          partB: q.partB.options[0] || '' 
+          partA: (q as any).partA?.options?.[0] || '', 
+          partB: (q as any).partB?.options?.[0] || '' 
         })
         fresh[q.id] = payload
       } else if (q.type === 'free-response') {
-        fresh[q.id] = String(q.correctAnswer ?? '123')
-      } else if (!q.type || q.type === 'single-choice') {
-        fresh[q.id] = q.options[0] || q.correctAnswer || 'A'
+        fresh[q.id] = String((q as any).correctAnswer ?? '123')
+      } else {
+        fresh[q.id] = (q as any).options?.[0] || (q as any).correctAnswer || 'A'
       }
     })
     setAnswers(fresh)
@@ -119,14 +125,15 @@ export default function TestPage() {
       const payload = questions.map((q) => {
         let correctValueStr = ''
         if (q.type === 'multiple-select') {
-          correctValueStr = JSON.stringify(q.correctAnswers)
+          correctValueStr = JSON.stringify((q as any).correctAnswers || (q as any).correctAnswer || [])
         } else if (q.type === 'two-part') {
           correctValueStr = JSON.stringify({ 
-            partA: q.partA.correctAnswer || '', 
-            partB: q.partB.correctAnswer || '' 
+            partA: (q as any).partA?.correctAnswer || '', 
+            partB: (q as any).partB?.correctAnswer || '' 
           })
-        } else if (q.type === 'free-response' || q.type === 'single-choice' || !q.type) {
-          correctValueStr = String(q.correctAnswer ?? '')
+        } else {
+          // single-choice or free-response
+          correctValueStr = String((q as any).correctAnswer ?? '')
         }
 
         let questionText = q.text
@@ -139,7 +146,7 @@ export default function TestPage() {
           questionText,
           correctAnswer: correctValueStr,
           userAnswer: answers[q.id] ?? '',
-          options: (q.type === 'single-choice' || q.type === 'multiple-select' || !q.type) ? q.options : undefined,
+          options: (q as any).options ?? undefined,
           diagramType: q.diagram?.type,
           diagramContent: q.diagram?.content,
           questionType: q.type || 'single-choice',
@@ -158,9 +165,8 @@ export default function TestPage() {
       }
       sessionStorage.removeItem(SESSION_KEY)
       router.push(`/review/${data.id}`)
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Something went wrong. Please try again.'
-      setError(msg)
+    } catch (e: any) {
+      setError(e.message || 'Something went wrong. Please try again.')
       setSubmitting(false)
     }
   }
@@ -315,7 +321,7 @@ export default function TestPage() {
 
               {(!q.type || q.type === 'single-choice') && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {q.options.map((opt: string, i: number) => (
+                  {(q as any).options.map((opt: string, i: number) => (
                     <button
                       key={opt}
                       className={`option-btn${selected === opt ? ' selected' : ''}`}
@@ -336,7 +342,7 @@ export default function TestPage() {
 
               {q.type === 'multiple-select' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {q.options.map((opt: string) => {
+                  {(q as any).options.map((opt: string) => {
                     const parsedSelection: string[] = answers[q.id] ? JSON.parse(answers[q.id]) : []
                     const isSelected = parsedSelection.includes(opt)
                     return (

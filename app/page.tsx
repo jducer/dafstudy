@@ -52,7 +52,7 @@ export default function HomePage() {
           lineHeight: 1.1,
           marginBottom: '20px',
         }}>
-          <span className="gradient-text">Sparky Study Math Portal</span>
+          <span className="gradient-text">Dafne&apos;s Math Portal</span>
           <br />
           <span style={{ color: 'var(--text-primary)', fontSize: '0.65em' }}>Mastering B.E.S.T. Math Test for 5th Grade</span>
         </h1>

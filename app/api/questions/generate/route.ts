@@ -50,6 +50,7 @@ export async function POST() {
       - Max 2 barCharts per test. 
       - Mix coordinate planes, number lines, cubeStacks, and polygons.
       - Use random names for people in word problems (e.g., Alex, Sam, Taylor, Jordan, Chloe, Liam, Maya, Ethan). 
+      - CRITICAL: DO NOT use the name "Dafne" in any questions.
       - Ensure the wording is concise. DO NOT repeat the question in the "standard" field.
       - The "standard" field MUST be a brief summary of the skill from the TARGETED SKILLS list.
 
@@ -118,29 +119,28 @@ export async function POST() {
     const rawQuestions = JSON.parse(cleanJson)
 
     // PROCESS DIAGRAMS
-    const questions = rawQuestions.map((q: Record<string, unknown>) => {
+    const questions = rawQuestions.map((q: any) => {
       let diagram = null
-      const diagramRequest = q.diagramRequest as Record<string, unknown> | null
-      if (diagramRequest) {
-        const { helper, ...args } = diagramRequest
+      if (q.diagramRequest) {
+        const { helper, ...args } = q.diagramRequest
         console.log(`[GEN] Building ${helper} for ${q.id}`)
         let content = ''
         try {
-          if (helper === 'coordinatePlane') content = drawCoordinatePlane(args.points as { x: number; y: number; label?: string }[] || [])
-          else if (helper === 'polygon') content = drawPolygon(args.points as [number, number][] || [])
-          else if (helper === 'barChart') content = drawBarChart(args.data as { label: string; value: number }[] || [], args.yMax as number)
-          else if (helper === 'fractionBox') content = drawFractionBox(args.numerator as number || 0, args.denominator as number || 1)
+          if (helper === 'coordinatePlane') content = drawCoordinatePlane(args.points || [])
+          else if (helper === 'polygon') content = drawPolygon(args.points || [])
+          else if (helper === 'barChart') content = drawBarChart(args.data || [], args.yMax)
+          else if (helper === 'fractionBox') content = drawFractionBox(args.numerator || 0, args.denominator || 1)
           else if (helper === 'numberLinePlot') {
             const minStr = String(args.minVal || 0)
             const maxStr = String(args.maxVal || 10)
             content = drawNumberLinePlot(
-              args.points as { value: number; count: number; label?: string }[] || [], 
+              args.points || [], 
               parseFloat(minStr), 
               parseFloat(maxStr), 
               parseFloat(String(args.step || 1))
             )
           }
-          else if (helper === 'cubeStack') content = draw3DCubeStack(args.width as number || 1, args.height as number || 1, args.depth as number || 1)
+          else if (helper === 'cubeStack') content = draw3DCubeStack(args.width || 1, args.height || 1, args.depth || 1)
           
           if (content) {
             console.log(`[GEN] Visual Success: ${q.id}`)
@@ -148,21 +148,19 @@ export async function POST() {
           } else {
             console.warn(`[GEN] Visual Empty: ${q.id} (helper: ${helper})`)
           }
-        } catch (e: unknown) {
-          const msg = e instanceof Error ? e.message : String(e)
-          console.error(`[GEN] Visual Error: ${q.id}`, msg)
+        } catch (e: any) {
+          console.error(`[GEN] Visual Error: ${q.id}`, e.message)
         }
       }
       return { ...q, diagram }
     })
 
     return NextResponse.json(questions)
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('Question Gen Error:', msg)
+  } catch (err: any) {
+    console.error('Question Gen Error:', err)
     return NextResponse.json({ 
       error: 'Failed to generate questions', 
-      details: msg 
+      details: err.message || String(err) 
     }, { status: 500 })
   }
 }

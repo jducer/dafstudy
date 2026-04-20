@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No answers provided' }, { status: 400 })
     }
 
-    const gradedAnswers = await Promise.all(rawAnswers.map(async (a: Record<string, unknown>) => {
+    const gradedAnswers = await Promise.all(rawAnswers.map(async (a: any) => {
       let isCorrect = false
       const qType = a.questionType || 'single-choice'
       
@@ -134,9 +134,8 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(testResult, { status: 201 })
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('Test Submission Error:', msg)
-    return NextResponse.json({ error: 'Failed to submit test', details: msg }, { status: 500 })
+  } catch (err: any) {
+    console.error('POST /api/tests error:', err)
+    return NextResponse.json({ error: 'Failed to save test', details: err.message || String(err) }, { status: 500 })
   }
 }

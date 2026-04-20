@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       
       const { audioStream } = tts.toStream(chunkText.trim())
       const buffer = await new Promise<Buffer>((resolve, reject) => {
-        const _chunks: { base64: string }[] = []
+        const _chunks: any[] = []
         audioStream.on('data', (d) => _chunks.push(d))
         audioStream.on('end', () => resolve(Buffer.concat(_chunks)))
         audioStream.on('error', (e) => reject(e))
@@ -44,9 +44,8 @@ export async function POST(request: Request) {
     }
     
     return NextResponse.json({ chunks: finalChunks })
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error)
-    console.error('[TTS] Server Error:', msg)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('[TTS API Error]', error)
+    return NextResponse.json({ error: error.message || 'TTS Generation Failed' }, { status: 500 })
   }
 }

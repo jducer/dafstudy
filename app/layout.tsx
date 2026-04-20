@@ -1,12 +1,11 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Sparky Study – Florida FAST Math Practice',
+  title: 'DAF Study – Florida FAST Math Practice',
   description:
-    'Interactive Florida FAST 5th-grade math practice tests with AI-powered tutoring. Take randomized 10-question tests, review mistakes, and get personalized hints from Sparky the AI tutor.',
+    'Interactive Florida FAST 5th-grade math practice tests with AI-powered tutoring. Take randomized 40-question tests, review mistakes, and get personalized hints from Sparky the AI tutor.',
   keywords: ['Florida FAST', '5th grade math', 'practice test', 'BEST standards', 'math tutor'],
 }
 
@@ -35,7 +34,7 @@ export default function RootLayout({
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
             <span style={{ fontSize: '1.6rem' }}>🧮</span>
             <span style={{
               fontWeight: 900,
@@ -44,7 +43,7 @@ export default function RootLayout({
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-            }}>Sparky Study</span>
+            }}>DAF Study</span>
             <span style={{
               fontSize: '0.65rem',
               fontWeight: 700,
@@ -56,18 +55,18 @@ export default function RootLayout({
               letterSpacing: '0.05em',
               textTransform: 'uppercase',
             }}>Florida FAST</span>
-          </Link>
+          </a>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Link href="/test" style={{ textDecoration: 'none' }}>
+            <a href="/test" style={{ textDecoration: 'none' }}>
               <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '0.875rem' }}>
                 📝 New Test
               </button>
-            </Link>
-            <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+            </a>
+            <a href="/dashboard" style={{ textDecoration: 'none' }}>
               <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '0.875rem' }}>
                 📊 Dashboard
               </button>
-            </Link>
+            </a>
           </div>
         </nav>
         <main style={{ minHeight: 'calc(100vh - 64px)' }}>

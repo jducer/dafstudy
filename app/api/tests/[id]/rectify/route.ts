@@ -56,7 +56,7 @@ export async function POST(
           const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
           
           const prompt = `
-            You are a math grading assistant for a 5th-grade student.
+            You are a math grading assistant for a 5th-grade student "Dafne".
             Question: "${existing.questionText}"
             Answer Key: "${existing.correctAnswer}"
             Student's New Answer: "${newAnswer}"

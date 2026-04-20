@@ -5,13 +5,6 @@
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 
-declare global {
-  interface Window {
-    currentSparkyAudio?: HTMLAudioElement | null;
-  }
-}
-
-
 /** Converts Sparky's markdown-ish output into clean HTML for rendering */
 function renderMarkdown(text: string): string {
   return text
@@ -75,7 +68,7 @@ async function speakText(text: string, id: number) {
       
       const chunk = data.chunks[currentChunk]
       const audio = new Audio(`data:audio/mp3;base64,${chunk.base64}`)
-      window.currentSparkyAudio = audio
+      ;(window as any).currentSparkyAudio = audio
       
       audio.onended = () => {
         currentChunk++
@@ -102,11 +95,11 @@ async function speakText(text: string, id: number) {
 
 /** Stop any playing custom cloud audio */
 function stopText() {
-  if (window.currentSparkyAudio) {
-    const oldAudio = window.currentSparkyAudio as HTMLAudioElement
+  if ((window as any).currentSparkyAudio) {
+    let oldAudio = (window as any).currentSparkyAudio as HTMLAudioElement
     oldAudio.pause()
     oldAudio.src = ''
-    window.currentSparkyAudio = null
+    ;(window as any).currentSparkyAudio = null
   }
   // Clear all speaking pulses
   document.querySelectorAll('.pulse-speaking').forEach(el => el.classList.remove('pulse-speaking'))
@@ -188,11 +181,10 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     try {
       let options: string[] = []
       try {
-        const ans = answer as Record<string, unknown>
-        if (ans.optionsJson && typeof ans.optionsJson === 'string') {
-          options = JSON.parse(ans.optionsJson)
+        if ((answer as any).optionsJson) {
+          options = JSON.parse((answer as any).optionsJson)
         }
-      } catch {}
+      } catch (e) {}
 
       const res = await fetch('/api/ai-tutor', {
         method: 'POST',
@@ -431,7 +423,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
       {/* Question cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {filteredAnswers.map((answer) => {
+        {filteredAnswers.map((answer, idx) => {
+          const globalIdx = test.answers.findIndex((a) => a.id === answer.id)
           const hint = hints[answer.id]
           const r = rectify[answer.id]
           const needsRectify = !answer.isCorrect && !answer.isRectified
@@ -465,7 +458,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '4px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Q</span>
+                    <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Q{globalIdx + 1}</span>
                     <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {answer.questionId}
                     </span>
@@ -481,7 +474,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                              // Actually, let's just use what's in lib if we need it, 
                              // but better to just fix the display of what's there.
                           }
-                        } catch {}
+                        } catch(e) {}
                       }
                       return answer.questionText
                     })()}
@@ -518,7 +511,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                             const p = JSON.parse(answer.correctAnswer)
                             return `Part A: ${p.partA}\nPart B: ${p.partB}`
                           }
-                        } catch {}
+                        } catch (e) {}
                         return answer.correctAnswer
                       })()}
                     </div>
@@ -539,7 +532,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                             const p = JSON.parse(answer.userAnswer)
                             return `Part A: ${p.partA || '?'}\nPart B: ${p.partB || '?'}`
                           }
-                        } catch {}
+                        } catch (e) {}
                         return answer.userAnswer
                       })()}
                     </div>
@@ -695,11 +688,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         {(() => {
                           let opts: string[] = []
                           try {
-                            const ans = answer as Record<string, unknown>
-                            if (ans.optionsJson && typeof ans.optionsJson === 'string') {
-                              opts = JSON.parse(ans.optionsJson)
-                            }
-                          } catch {}
+                            if ((answer as any).optionsJson) opts = JSON.parse((answer as any).optionsJson)
+                          } catch (e) {}
 
                           return opts.map((opt, i) => {
                             const isMS = answer.questionType === 'multiple-select'
@@ -708,7 +698,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               try {
                                 const parsed = r?.selected ? JSON.parse(r.selected) : []
                                 isSelected = Array.isArray(parsed) && parsed.includes(opt)
-                              } catch { isSelected = r?.selected === opt }
+                              } catch (e) { isSelected = r?.selected === opt }
                             } else {
                               isSelected = r?.selected === opt
                             }
@@ -722,7 +712,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               } else {
                                 isOriginalWrong = answer.userAnswer === opt
                               }
-                            } catch {}
+                            } catch(e) {}
 
                             return (
                               <button
@@ -734,7 +724,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                                     let current: string[] = []
                                     try {
                                       current = r?.selected ? JSON.parse(r.selected) : []
-                                    } catch {}
+                                    } catch (e) {}
                                     const next = current.includes(opt)
                                       ? current.filter(x => x !== opt)
                                       : [...current, opt]
@@ -791,7 +781,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               try {
                                 const p = JSON.parse(r?.selected || '[]')
                                 if (Array.isArray(p)) return p.join(', ')
-                              } catch {}
+                              } catch(e) {}
                             }
                             return r?.selected ?? ''
                           })()}
@@ -836,7 +826,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     )}
                     {r?.result === 'wrong' && (
                       <div style={{ marginTop: '10px', color: '#ef476f', fontWeight: 700, fontSize: '0.9rem' }}>
-                        Not quite — try again! Review Sparky&apos;s hint above. 💪
+                        Not quite — try again! Review Sparky's hint above. 💪
                       </div>
                     )}
                   </div>
