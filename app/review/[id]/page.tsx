@@ -54,14 +54,16 @@ function speakText(text: string) {
     const utterance = new SpeechSynthesisUtterance(stripMarkdown(text))
     
     // Ranked list of preferred premium/natural voices available on most OS/Browsers
-    // Checking for "Premium" or "Enhanced" versions explicitly first
     const preferredVoices = [
-      'Google US English',
-      'Samantha',
-      'Alex',
-      'Karen',
-      'Victoria',
-      'Daniel'
+      'Google US English', // Chrome premium
+      'Samantha',          // macOS Siri
+      'Alex',              // macOS High Quality
+      'Ava',               // macOS Premium (Newer)
+      'Allison',           // macOS Premium
+      'Susan',             // macOS Premium
+      'Karen',             // macOS Premium
+      'Oliver',            // macOS Premium UK
+      'Daniel'             // macOS Premium UK
     ]
     
     let selectedVoice = null
@@ -85,11 +87,15 @@ function speakText(text: string) {
       selectedVoice = voices.find(v => v.lang.startsWith('en-') && !v.name.includes('Microsoft'))
     }
     
+    
     if (selectedVoice) {
       utterance.voice = selectedVoice
+      console.log(`[TTS] Using premium voice: ${selectedVoice.name}`)
+    } else {
+      console.warn('[TTS] No premium/enhanced voice found. Using robotic fallback. To fix this on Mac, go to Settings -> Accessibility -> Spoken Content -> System Voice and download Samantha or Ava (Enhanced).')
     }
 
-    utterance.rate = 0.95 // slightly slower for clarity
+    utterance.rate = 1.0 // Normal speed for premium voices
     utterance.pitch = 1.05 // slightly elevated for a friendly tone
     window.speechSynthesis.speak(utterance)
   }
