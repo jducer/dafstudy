@@ -5,6 +5,13 @@
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 
+declare global {
+  interface Window {
+    currentSparkyAudio?: HTMLAudioElement | null;
+  }
+}
+
+
 /** Converts Sparky's markdown-ish output into clean HTML for rendering */
 function renderMarkdown(text: string): string {
   return text
@@ -68,7 +75,7 @@ async function speakText(text: string, id: number) {
       
       const chunk = data.chunks[currentChunk]
       const audio = new Audio(`data:audio/mp3;base64,${chunk.base64}`)
-      ;(window as any).currentSparkyAudio = audio
+      window.currentSparkyAudio = audio
       
       audio.onended = () => {
         currentChunk++
@@ -95,11 +102,11 @@ async function speakText(text: string, id: number) {
 
 /** Stop any playing custom cloud audio */
 function stopText() {
-  if ((window as any).currentSparkyAudio) {
-    let oldAudio = (window as any).currentSparkyAudio as HTMLAudioElement
+  if (window.currentSparkyAudio) {
+    const oldAudio = window.currentSparkyAudio as HTMLAudioElement
     oldAudio.pause()
     oldAudio.src = ''
-    ;(window as any).currentSparkyAudio = null
+    window.currentSparkyAudio = null
   }
   // Clear all speaking pulses
   document.querySelectorAll('.pulse-speaking').forEach(el => el.classList.remove('pulse-speaking'))
@@ -425,7 +432,6 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
       {/* Question cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {filteredAnswers.map((answer) => {
-          const globalIdx = test.answers.findIndex((a) => a.id === answer.id)
           const hint = hints[answer.id]
           const r = rectify[answer.id]
           const needsRectify = !answer.isCorrect && !answer.isRectified

@@ -21,7 +21,6 @@ interface TestSummary {
 
 function ScoreRing({ score, total }: { score: number; total: number }) {
   const pct = Math.round((score / total) * 100)
-  const color = pct >= 80 ? '#06d6a0' : pct >= 60 ? '#4f8ef7' : '#ef476f'
   const cls = pct >= 80 ? 'excellent' : pct >= 60 ? 'good' : 'needs-work'
   return (
     <div className={`score-badge ${cls}`}>

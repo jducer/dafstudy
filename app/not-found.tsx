@@ -23,10 +23,10 @@ export default function NotFound() {
       color: 'var(--text-primary)'
     }}>
       <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🧙‍♂️</div>
-      <h1 style={{ fontWeight: 900, fontSize: '2rem', marginBottom: '16px' }}>Sparky can't find that page!</h1>
+      <h1 style={{ fontWeight: 900, fontSize: '2rem', marginBottom: '16px' }}>Sparky can&apos;t find that page!</h1>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '400px' }}>
-        The path <code>{url || '...'}</code> doesn't seem to exist. 
-        If you're on Mobile Safari, try returning to the home page!
+        The path <code>{url || '...'}</code> doesn&apos;t seem to exist. 
+        If you&apos;re on Mobile Safari, try returning to the home page!
       </p>
       
       <Link href="/">

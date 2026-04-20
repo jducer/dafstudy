@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getRandomQuestions, Question } from '@/lib/questions'
+import { Question } from '@/lib/questions'
 
 type Answers = Record<string, string> // questionId -> selectedOption
 
