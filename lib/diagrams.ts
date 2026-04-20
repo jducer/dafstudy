@@ -128,8 +128,8 @@ export function drawBarChart(data: { label: string; value: number }[], yMaxInput
   const barWidth = chartWidth / Math.max(data.length, 1) - 10
   
   let bars = ''
-  let xAxis = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX + 20}" y2="${height - paddingY}" stroke="currentColor" stroke-width="2"/>`
-  let yAxis = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${paddingX}" y2="${paddingY - 10}" stroke="currentColor" stroke-width="2"/>`
+  const xAxis = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX + 20}" y2="${height - paddingY}" stroke="currentColor" stroke-width="2"/>`
+  const yAxis = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${paddingX}" y2="${paddingY - 10}" stroke="currentColor" stroke-width="2"/>`
   
   data.forEach((d, i) => {
     const x = paddingX + 10 + i * (barWidth + 10)
@@ -200,7 +200,7 @@ export function drawNumberLinePlot(points: { value: number; count: number; label
   const segments = Math.round(span / displayStep)
   const segmentWidth = chartWidth / segments
 
-  let line = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX}" y2="${height - paddingY}" stroke="currentColor" stroke-width="2"/>`
+  const line = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX}" y2="${height - paddingY}" stroke="currentColor" stroke-width="2"/>`
   let ticks = ''
   let marks = ''
 
