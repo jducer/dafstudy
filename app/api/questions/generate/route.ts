@@ -52,6 +52,11 @@ export async function POST() {
       - Use random names (Alex, Sam, Taylor, Jordan). NO "Dafne".
       - Standard field MUST be the code only (e.g. MA.5.NSO.1.1).
 
+      QUESTION TYPE MIX (MANDATORY — DO NOT DEVIATE):
+      - Exactly 7 questions must be type "single-choice"
+      - Exactly 2 questions must be type "free-response" (student types a number, no options needed)
+      - Exactly 1 question must be type "multiple-select" (student picks ALL correct answers)
+
       DIAGRAM SCHEMAS (REQUIRED PARAMETERS):
       - coordinatePlane: { "helper": "coordinatePlane", "points": [{ "x": number, "y": number, "label": string }] }
       - polygon: { "helper": "polygon", "points": [[x,y], [x,y], [x,y]] }
@@ -60,20 +65,17 @@ export async function POST() {
       - numberLinePlot: { "helper": "numberLinePlot", "points": [{ "value": number, "count": number }], "minVal": number, "maxVal": number, "step": number }
       - cubeStack: { "helper": "cubeStack", "width": number, "height": number, "depth": number }
 
-      SCHEMA:
-      [
-        {
-          "id": "string",
-          "standard": "string",
-          "type": "single-choice" | "multiple-select" | "free-response",
-          "text": "string",
-          "options": ["string", "string", "string", "string"], 
-          "correctAnswer": "string", 
-          "diagramRequest": { "helper": "NAME_FROM_LIST_ABOVE", ...params_matching_schema_above },
-          "explanation": "string"
-        }
-      ]
-      
+      OUTPUT SCHEMA (per question type):
+
+      For "single-choice":
+      { "id": "string", "standard": "string", "type": "single-choice", "text": "string", "options": ["A","B","C","D"], "correctAnswer": "exact string from options", "diagramRequest": {...} or null, "explanation": "string" }
+
+      For "free-response":
+      { "id": "string", "standard": "string", "type": "free-response", "text": "string", "options": null, "correctAnswer": "the numeric answer as a string", "diagramRequest": {...} or null, "explanation": "string" }
+
+      For "multiple-select" (pick ALL that apply):
+      { "id": "string", "standard": "string", "type": "multiple-select", "text": "string (end with 'Select ALL that apply.')", "options": ["A","B","C","D","E"], "correctAnswer": "first correct answer", "correctAnswers": ["correct1", "correct2"], "diagramRequest": {...} or null, "explanation": "string" }
+
       Respond ONLY with the JSON array.
     `.trim()
     
