@@ -34,45 +34,67 @@ function stripMarkdown(text: string): string {
     .replace(/([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/g, '')
 }
 
-/** Uses Web Speech API to read text aloud with a better voice */
+/** Uses Web Speech API to read text aloud with a better voice and async loading */
 function speakText(text: string) {
   if (!('speechSynthesis' in window)) return
   
-  // Stop any currently playing speech
-  window.speechSynthesis.cancel()
-  
-  const utterance = new SpeechSynthesisUtterance(stripMarkdown(text))
-  
-  // Try to find a high-quality, natural-sounding voice
-  const voices = window.speechSynthesis.getVoices()
-  // Ranked list of preferred premium/natural voices available on most OS/Browsers
-  const preferredVoices = [
-    'Google US English', // Chrome premium
-    'Samantha',          // macOS Siri default
-    'Alex',              // macOS High Quality
-    'Karen',             // macOS Premium
-    'Victoria',          // macOS Premium
-    'Daniel'             // good British alternative
-  ]
-  
-  let selectedVoice = null
-  for (const preferred of preferredVoices) {
-    selectedVoice = voices.find(v => v.name.includes(preferred))
-    if (selectedVoice) break
-  }
-  
-  // Fallback to any decent English voice if premiums aren't found
-  if (!selectedVoice) {
-    selectedVoice = voices.find(v => v.lang.startsWith('en-') && !v.name.includes('Microsoft'))
-  }
-  
-  if (selectedVoice) {
-    utterance.voice = selectedVoice
+  // Browsers load voices asynchronously, so they might be empty initially.
+  // We use a recursive attempt to wait for them to populate.
+  const attemptSpeak = (retries = 0) => {
+    const voices = window.speechSynthesis.getVoices()
+    
+    if (voices.length === 0 && retries < 10) {
+      setTimeout(() => attemptSpeak(retries + 1), 100)
+      return
+    }
+
+    // Stop any currently playing speech
+    window.speechSynthesis.cancel()
+    
+    const utterance = new SpeechSynthesisUtterance(stripMarkdown(text))
+    
+    // Ranked list of preferred premium/natural voices available on most OS/Browsers
+    // Checking for "Premium" or "Enhanced" versions explicitly first
+    const preferredVoices = [
+      'Google US English',
+      'Samantha',
+      'Alex',
+      'Karen',
+      'Victoria',
+      'Daniel'
+    ]
+    
+    let selectedVoice = null
+    
+    // Prioritize "Enhanced" or "Premium" versions of the preferred voices (Mac specific)
+    for (const preferred of preferredVoices) {
+      selectedVoice = voices.find(v => v.name.includes(preferred) && (v.name.includes('Premium') || v.name.includes('Enhanced')))
+      if (selectedVoice) break
+    }
+
+    // If no premium tag found, fall back to the standard version of preferred voices
+    if (!selectedVoice) {
+      for (const preferred of preferredVoices) {
+        selectedVoice = voices.find(v => v.name.includes(preferred))
+        if (selectedVoice) break
+      }
+    }
+    
+    // Fallback to any decent English voice if premiums aren't found
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => v.lang.startsWith('en-') && !v.name.includes('Microsoft'))
+    }
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice
+    }
+
+    utterance.rate = 0.95 // slightly slower for clarity
+    utterance.pitch = 1.05 // slightly elevated for a friendly tone
+    window.speechSynthesis.speak(utterance)
   }
 
-  utterance.rate = 0.95 // slightly slower for clarity
-  utterance.pitch = 1.05 // slightly elevated for a friendly tone
-  window.speechSynthesis.speak(utterance)
+  attemptSpeak()
 }
 
 interface QuestionAnswer {
