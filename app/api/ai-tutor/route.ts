@@ -29,12 +29,7 @@ export async function POST(request: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey)
-    let model;
-    try {
-      model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-    } catch (e) {
-      model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-    }
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const systemPrompt = `
 You are a playful, high-energy math tutor named "Sparky" who helps 8-year-olds like "Dafne".
