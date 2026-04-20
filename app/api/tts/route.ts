@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
     // Automatically chunks text > 200 chars and returning base64 audio strings
     const results = await googleTTS.getAllAudioBase64(text, {
-      lang: 'en-US',
+      lang: 'en',
       slow: false,
       host: 'https://translate.google.com',
       splitPunct: ',.?!',
