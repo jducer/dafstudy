@@ -78,7 +78,9 @@ export async function POST(request: Request) {
             const ai = new GoogleGenerativeAI(apiKey)
             const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
             const prompt = `
-              You are grading a 5th-grade math test for "Dafne".
+              You are grading a 5th-grade math test for a student.
+              Analyze the question, the options, and the student's answer.
+              Provide a clear, encouraging grade.
               Question: "${a.questionText}"
               Key: "${a.correctAnswer}"
               Student Answer: "${a.userAnswer}"

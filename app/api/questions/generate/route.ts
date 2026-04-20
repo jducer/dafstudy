@@ -50,7 +50,6 @@ export async function POST() {
       - Max 2 barCharts per test. 
       - Mix coordinate planes, number lines, cubeStacks, and polygons.
       - Use random names for people in word problems (e.g., Alex, Sam, Taylor, Jordan, Chloe, Liam, Maya, Ethan). 
-      - CRITICAL: DO NOT use the name "Dafne" in any questions.
       - Ensure the wording is concise. DO NOT repeat the question in the "standard" field.
       - The "standard" field MUST be a brief summary of the skill from the TARGETED SKILLS list.
 

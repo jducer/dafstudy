@@ -82,7 +82,7 @@ export default function DashboardPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h1 style={{ fontWeight: 900, fontSize: '2rem', marginBottom: '4px' }}>
-              📊 <span className="gradient-text">Dafne's Learning Portal</span>
+              📊 <span className="gradient-text">My Study Hub</span>
             </h1>
             <p style={{ color: 'var(--text-secondary)' }}>Track your progress and review past tests</p>
           </div>
