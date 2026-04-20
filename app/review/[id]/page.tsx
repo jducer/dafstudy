@@ -34,63 +34,70 @@ function stripMarkdown(text: string): string {
     .replace(/([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/g, '')
 }
 
-/** Uses Google's cloud TTS for guaranteed high-quality natural voice, bypassing OS limitations */
+/** Browser TTS: the browser sandbox heavily limits which voices it can "see" to protect privacy. */
 function speakText(text: string) {
-  // Stop any currently playing browser speech just in case
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel()
-  }
+  if (!('speechSynthesis' in window)) return
   
-  // Stop any currently playing custom audio (we attach it to the window to track it)
-  if ((window as any).currentSparkyAudio) {
-    let oldAudio = (window as any).currentSparkyAudio as HTMLAudioElement
-    oldAudio.pause()
-    oldAudio.src = ''
-  }
+  window.speechSynthesis.cancel() // Stop existing
 
-  const cleanText = stripMarkdown(text)
-  // Google TTS has a 200 character limit per request. Split by punctuation to keep phrasing natural.
-  const chunks = cleanText.match(/[^.!?]+[.!?]+/g) || [cleanText]
-  
-  let currentChunk = 0
-
-  const playNext = () => {
-    if (currentChunk >= chunks.length) return
+  const attemptSpeak = (retries = 0) => {
+    const voices = window.speechSynthesis.getVoices()
     
-    let chunkText = chunks[currentChunk].trim()
-    if (!chunkText) {
-      currentChunk++
-      playNext()
+    if (voices.length === 0 && retries < 10) {
+      setTimeout(() => attemptSpeak(retries + 1), 100)
       return
     }
 
-    // Unofficial Google Translate TTS endpoint (high quality, natural voice)
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunkText)}&tl=en&client=tw-ob`
-    const audio = new Audio(url)
-    ;(window as any).currentSparkyAudio = audio
+    const cleanText = stripMarkdown(text)
+    const utterance = new SpeechSynthesisUtterance(cleanText)
     
-    audio.onended = () => {
-      currentChunk++
-      playNext()
-    }
+    // First, try to see whatever the OS marks as the actual default.
+    let selectedVoice = voices.find(v => v.default)
 
-    audio.onerror = () => {
-      console.warn('[TTS] Google Voice failed, falling back to basic browser voice.')
-      // Ultimate fallback if Google blocks the Audio tag
-      const utterance = new SpeechSynthesisUtterance(chunkText)
-      utterance.onend = () => {
-        currentChunk++
-        playNext()
+    // Ranked list of preferred premium/natural voices available on most OS/Browsers
+    const preferredVoices = [
+      'Samantha',
+      'Alex',
+      'Ava',
+      'Allison',
+      'Susan',
+      'Google US English' // Chrome premium
+    ]
+    
+    if (!selectedVoice || selectedVoice.name.includes('Fred') || selectedVoice.name.includes('Ralph')) {
+      // Prioritize "Enhanced" or "Premium" versions of the preferred voices (Mac specific)
+      for (const preferred of preferredVoices) {
+        selectedVoice = voices.find(v => v.name.includes(preferred) && (v.name.includes('Premium') || v.name.includes('Enhanced')))
+        if (selectedVoice) break
       }
-      window.speechSynthesis.speak(utterance)
+
+      // Standard fallback
+      if (!selectedVoice) {
+        for (const preferred of preferredVoices) {
+          selectedVoice = voices.find(v => v.name.includes(preferred))
+          if (selectedVoice) break
+        }
+      }
+    }
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice
+      console.log(`[TTS] Using browser voice: ${selectedVoice.name}`)
     }
 
-    audio.play().catch(e => {
-       console.warn('[TTS] Audio play blocked:', e)
-    })
+    utterance.rate = 1.0
+    utterance.pitch = 1.05
+    window.speechSynthesis.speak(utterance)
   }
 
-  playNext()
+  attemptSpeak()
+}
+
+/** Stop any playing speech */
+function stopText() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+  }
 }
 
 interface QuestionAnswer {
@@ -570,26 +577,49 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#9b5de5', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           🤖 Sparky says:
                         </div>
-                        <button
-                          onClick={() => speakText(hint.text!)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '1.2rem',
-                            padding: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '50%',
-                            transition: 'background 0.2s',
-                          }}
-                          className="hover-bg-subtle"
-                          title="Read aloud"
-                          aria-label="Read aloud"
-                        >
-                          🔊
-                        </button>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button
+                            onClick={() => speakText(hint.text!)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '1.2rem',
+                              padding: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '50%',
+                              transition: 'background 0.2s',
+                            }}
+                            className="hover-bg-subtle"
+                            title="Read aloud"
+                            aria-label="Read aloud"
+                          >
+                            🔊
+                          </button>
+                          <button
+                            onClick={stopText}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '1.2rem',
+                              padding: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '50%',
+                              transition: 'background 0.2s',
+                              opacity: 0.8
+                            }}
+                            className="hover-bg-subtle"
+                            title="Stop reading"
+                            aria-label="Stop reading"
+                          >
+                            🛑
+                          </button>
+                        </div>
                       </div>
                       <div 
                         style={{ color: 'var(--text-primary)', lineHeight: 1.8, fontSize: '0.95rem' }}
