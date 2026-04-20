@@ -37,10 +37,9 @@ function stripMarkdown(text: string): string {
 /** Uses Google Cloud TTS API endpoint to completely bypass OS/Browser limitations */
 async function speakText(text: string) {
   stopText() // Stop existing native or custom TTS
-
-  const cleanText = stripMarkdown(text)
   
   try {
+    const cleanText = stripMarkdown(text)
     const res = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,6 +59,12 @@ async function speakText(text: string) {
       const audio = new Audio(`data:audio/mp3;base64,${chunk.base64}`)
       ;(window as any).currentSparkyAudio = audio
       
+      audio.onerror = () => {
+        console.warn('[TTS] Google Voice failed to load chunk. Not falling back to robot voice.')
+        currentChunk++
+        playNext()
+      }
+
       audio.onended = () => {
         currentChunk++
         playNext()
@@ -70,19 +75,12 @@ async function speakText(text: string) {
 
     playNext()
   } catch (error) {
-    console.error('[TTS] Cloud API Error, falling back to browser:', error)
-    // Absolute worst-case fallback
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance(cleanText))
-    }
+    console.error('[TTS] Cloud API Error. Robotic fallback is disabled per user request:', error)
   }
 }
 
 /** Stop any playing speech (both browser and custom cloud audio) */
 function stopText() {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel()
-  }
   if ((window as any).currentSparkyAudio) {
     let oldAudio = (window as any).currentSparkyAudio as HTMLAudioElement
     oldAudio.pause()
