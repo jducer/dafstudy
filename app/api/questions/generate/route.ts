@@ -19,7 +19,15 @@ const standards = [
   'MA.5.AR.1.2', 'MA.5.DP.1.1', 'MA.5.NSO.1.2'
 ]
 
+export const maxDuration = 60 // Allow up to 60s for generation in production (Vercel)
+
 export async function POST() {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) {
+    return NextResponse.json({ error: 'GEMINI_API_KEY is missing in this environment' }, { status: 500 })
+  }
+  const genAI = new GoogleGenerativeAI(apiKey)
+  
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
     
@@ -104,8 +112,11 @@ export async function POST() {
     })
 
     return NextResponse.json(questions)
-  } catch (err) {
+  } catch (err: any) {
     console.error('Question Gen Error:', err)
-    return NextResponse.json({ error: 'Failed to generate questions' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to generate questions', 
+      details: err.message || String(err) 
+    }, { status: 500 })
   }
 }
