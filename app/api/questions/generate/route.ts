@@ -33,7 +33,7 @@ export async function POST() {
     
     const prompt = `
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
-      Your task is to generate 10 rigorous, mathematically perfect questions for "Dafne".
+      Your task is to generate 10 rigorous, mathematically perfect questions for a 5th-grade student.
       
       TEST DIVERSITY & RIGOR (MANDATORY):
       - NO REPETITION: Do not use the same diagram type (e.g. barChart) more than twice in one test.
@@ -63,9 +63,9 @@ export async function POST() {
       [
         {
           "id": "DYNA-[unique-id]",
-          "standard": "...",
+          "standard": "The code only (e.g. MA.5.NSO.1.1)", 
           "type": "single-choice" | "multiple-select" | "free-response",
-          "text": "...",
+          "text": "A clear math story question. Use random names like Alex, Sam, Jordan, Taylor, etc. DO NOT use the name 'Dafne'.",
           "options": ["Option 1", "Option 2", "Option 3", "Option 4"], 
           "correctAnswer": "The exact string from the options list", 
           "diagramRequest": { "helper": "...", ...REQUIRED_ARGS_LISTED_ABOVE },
