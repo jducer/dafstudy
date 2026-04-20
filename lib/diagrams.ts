@@ -65,10 +65,47 @@ export function drawCoordinatePlane(points: { x: number; y: number; label?: stri
  * Returns an SVG of a simple polygon given its vertices.
  */
 export function drawPolygon(points: [number, number][], attrs: string = ''): string {
-  const pointsStr = points.map((p) => p.join(',')).join(' ')
+  if (!points || points.length === 0) return ''
+  
+  // Auto-scale to fill the space responsibly
+  const Padding = 15
+  const ViewSize = 100
+  const DrawableSize = ViewSize - (Padding * 2)
+  
+  const minX = Math.min(...points.map(p => p[0]))
+  const maxX = Math.max(...points.map(p => p[0]))
+  const minY = Math.min(...points.map(p => p[1]))
+  const maxY = Math.max(...points.map(p => p[1]))
+  
+  const width = Math.max(maxX - minX, 0.0001)
+  const height = Math.max(maxY - minY, 0.0001)
+  
+  // Use the larger dimension to maintain aspect ratio
+  const scale = DrawableSize / Math.max(width, height)
+  
+  const scaledPoints = points.map(p => {
+    const x = Padding + (p[0] - minX) * scale
+    const y = Padding + (p[1] - minY) * scale
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  }).join(' ')
+
   return `
-    <svg viewBox="0 0 100 100" width="100%" height="150" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="${pointsStr}" fill="${svgConfig.fill}" stroke="${svgConfig.accent}" stroke-width="2" ${attrs}/>
+    <svg viewBox="0 0 ${ViewSize} ${ViewSize}" width="100%" height="200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+      <polygon 
+        points="${scaledPoints}" 
+        fill="${svgConfig.accent}33" 
+        stroke="${svgConfig.accent}" 
+        stroke-width="3" 
+        stroke-linejoin="round"
+        filter="url(#soft-glow)"
+        ${attrs}
+      />
     </svg>
   `
 }

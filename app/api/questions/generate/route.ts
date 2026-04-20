@@ -21,7 +21,12 @@ const standards = [
 
 export async function POST() {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    let model;
+    try {
+      model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    } catch (e) {
+      model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    }
     
     const prompt = `
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
