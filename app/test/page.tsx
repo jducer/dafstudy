@@ -1,7 +1,7 @@
 'use client'
 // app/test/page.tsx — Take the 40-question randomized test
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRandomQuestions, Question } from '@/lib/questions'
 
@@ -26,14 +26,7 @@ export default function TestPage() {
   const answeredCount = Object.keys(answers).length
   const allAnswered = questions.length > 0 && answeredCount === questions.length
 
-  const startStaticTest = useCallback(() => {
-    const qs = getRandomQuestions(10)
-    setQuestions(qs)
-    setAnswers({})
-    setCurrentPage(0)
-    setTestStarted(true)
-    setTestMode('static')
-  }, [])
+
 
   const startDynamicTest = async () => {
     setGenerating(true)
@@ -55,7 +48,46 @@ export default function TestPage() {
     }
   }
 
-  // ... (keeping useEffects unchanged)
+  // Check for a saved in-progress test on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY)
+      if (saved) setHasSavedTest(true)
+    } catch {}
+  }, [])
+
+  // Auto-save progress whenever answers change
+  useEffect(() => {
+    if (!testStarted || questions.length === 0) return
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ questions, answers, currentPage, testMode }))
+    } catch {}
+  }, [answers, currentPage, testStarted, questions, testMode])
+
+  const resumeSavedTest = () => {
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY)
+      if (!saved) return
+      const { questions: qs, answers: ans, currentPage: pg, testMode: mode } = JSON.parse(saved)
+      setQuestions(qs)
+      setAnswers(ans)
+      setCurrentPage(pg)
+      setTestMode(mode)
+      setTestStarted(true)
+      setHasSavedTest(false)
+    } catch {}
+  }
+
+  const currentQuestions = questions.slice(
+    currentPage * QUESTIONS_PER_PAGE,
+    (currentPage + 1) * QUESTIONS_PER_PAGE
+  )
+
+  const handleSelect = (questionId: string, option: string | string[] | Record<string, string>) => {
+    // If it's an object or array, store it as JSON string. Otherwise just store the string.
+    const valueStr = typeof option === 'string' ? option : JSON.stringify(option)
+    setAnswers((prev) => ({ ...prev, [questionId]: valueStr }))
+  }
 
   const handleFillSampleAnswers = () => {
     const fresh: Record<string, string> = {}

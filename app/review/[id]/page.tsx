@@ -181,10 +181,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     try {
       let options: string[] = []
       try {
-        if ((answer as any).optionsJson) {
-          options = JSON.parse((answer as any).optionsJson)
+        const ans = answer as Record<string, unknown>
+        if (ans.optionsJson && typeof ans.optionsJson === 'string') {
+          options = JSON.parse(ans.optionsJson)
         }
-      } catch (e) {}
+      } catch {}
 
       const res = await fetch('/api/ai-tutor', {
         method: 'POST',
@@ -423,7 +424,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
       {/* Question cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {filteredAnswers.map((answer, idx) => {
+        {filteredAnswers.map((answer) => {
           const globalIdx = test.answers.findIndex((a) => a.id === answer.id)
           const hint = hints[answer.id]
           const r = rectify[answer.id]
@@ -458,7 +459,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '4px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Q{globalIdx + 1}</span>
+                    <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Q</span>
                     <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {answer.questionId}
                     </span>
@@ -474,7 +475,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                              // Actually, let's just use what's in lib if we need it, 
                              // but better to just fix the display of what's there.
                           }
-                        } catch(e) {}
+                        } catch {}
                       }
                       return answer.questionText
                     })()}
@@ -511,7 +512,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                             const p = JSON.parse(answer.correctAnswer)
                             return `Part A: ${p.partA}\nPart B: ${p.partB}`
                           }
-                        } catch (e) {}
+                        } catch {}
                         return answer.correctAnswer
                       })()}
                     </div>
@@ -532,7 +533,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                             const p = JSON.parse(answer.userAnswer)
                             return `Part A: ${p.partA || '?'}\nPart B: ${p.partB || '?'}`
                           }
-                        } catch (e) {}
+                        } catch {}
                         return answer.userAnswer
                       })()}
                     </div>
@@ -688,8 +689,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         {(() => {
                           let opts: string[] = []
                           try {
-                            if ((answer as any).optionsJson) opts = JSON.parse((answer as any).optionsJson)
-                          } catch (e) {}
+                            const ans = answer as Record<string, unknown>
+                            if (ans.optionsJson && typeof ans.optionsJson === 'string') {
+                              opts = JSON.parse(ans.optionsJson)
+                            }
+                          } catch {}
 
                           return opts.map((opt, i) => {
                             const isMS = answer.questionType === 'multiple-select'
@@ -698,7 +702,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               try {
                                 const parsed = r?.selected ? JSON.parse(r.selected) : []
                                 isSelected = Array.isArray(parsed) && parsed.includes(opt)
-                              } catch (e) { isSelected = r?.selected === opt }
+                              } catch { isSelected = r?.selected === opt }
                             } else {
                               isSelected = r?.selected === opt
                             }
@@ -712,7 +716,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               } else {
                                 isOriginalWrong = answer.userAnswer === opt
                               }
-                            } catch(e) {}
+                            } catch {}
 
                             return (
                               <button
@@ -724,7 +728,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                                     let current: string[] = []
                                     try {
                                       current = r?.selected ? JSON.parse(r.selected) : []
-                                    } catch (e) {}
+                                    } catch {}
                                     const next = current.includes(opt)
                                       ? current.filter(x => x !== opt)
                                       : [...current, opt]
@@ -781,7 +785,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                               try {
                                 const p = JSON.parse(r?.selected || '[]')
                                 if (Array.isArray(p)) return p.join(', ')
-                              } catch(e) {}
+                              } catch {}
                             }
                             return r?.selected ?? ''
                           })()}
@@ -826,7 +830,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     )}
                     {r?.result === 'wrong' && (
                       <div style={{ marginTop: '10px', color: '#ef476f', fontWeight: 700, fontSize: '0.9rem' }}>
-                        Not quite — try again! Review Sparky's hint above. 💪
+                        Not quite — try again! Review Sparky&apos;s hint above. 💪
                       </div>
                     )}
                   </div>
