@@ -34,7 +34,7 @@ function stripMarkdown(text: string): string {
     .replace(/([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/g, '')
 }
 
-/** Uses Web Speech API to read text aloud */
+/** Uses Web Speech API to read text aloud with a better voice */
 function speakText(text: string) {
   if (!('speechSynthesis' in window)) return
   
@@ -42,8 +42,36 @@ function speakText(text: string) {
   window.speechSynthesis.cancel()
   
   const utterance = new SpeechSynthesisUtterance(stripMarkdown(text))
+  
+  // Try to find a high-quality, natural-sounding voice
+  const voices = window.speechSynthesis.getVoices()
+  // Ranked list of preferred premium/natural voices available on most OS/Browsers
+  const preferredVoices = [
+    'Google US English', // Chrome premium
+    'Samantha',          // macOS Siri default
+    'Alex',              // macOS High Quality
+    'Karen',             // macOS Premium
+    'Victoria',          // macOS Premium
+    'Daniel'             // good British alternative
+  ]
+  
+  let selectedVoice = null
+  for (const preferred of preferredVoices) {
+    selectedVoice = voices.find(v => v.name.includes(preferred))
+    if (selectedVoice) break
+  }
+  
+  // Fallback to any decent English voice if premiums aren't found
+  if (!selectedVoice) {
+    selectedVoice = voices.find(v => v.lang.startsWith('en-') && !v.name.includes('Microsoft'))
+  }
+  
+  if (selectedVoice) {
+    utterance.voice = selectedVoice
+  }
+
   utterance.rate = 0.95 // slightly slower for clarity
-  utterance.pitch = 1.1 // slightly higher pitch to sound friendly
+  utterance.pitch = 1.05 // slightly elevated for a friendly tone
   window.speechSynthesis.speak(utterance)
 }
 
