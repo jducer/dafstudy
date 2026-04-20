@@ -29,51 +29,42 @@ export async function POST() {
   const genAI = new GoogleGenerativeAI(apiKey)
   
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        responseMimeType: "application/json",
+      }
+    })
     
     const prompt = `
       You are a specialized math test architect for the Florida B.E.S.T. 5th-grade standards.
-      Your task is to generate 10 rigorous, mathematically perfect questions for a 5th-grade student.
+      Generate 8 rigorous, mathematically perfect questions in a JSON ARRAY.
       
-      TEST DIVERSITY & RIGOR (MANDATORY):
-      - NO REPETITION: Do not use the same diagram type (e.g. barChart) more than twice in one test.
-      - MULTI-STANDARD MIX: Randomly select a different standard for every question.
-      - TOPIC SHUFFLE: Ensure a mix of fractions, geometry, area/volume, and data analysis.
-      - VISUAL DIVERSITY: You MUST use a different helper for at least 6 questions (Coordinate Plane, Polygon, Number Line, Fraction Box, Bar Chart, Cube Stack).
-      
-      ACCURACY & SOLVABILITY GATE:
+      ACCURACY GATE:
       1. Calculate exact decimal values. Verify comparisons are 100% true.
       2. Ensure exactly ONE option is correct. Perform a "Distractor Audit."
       3. **STRICT SOLVABILITY**: No "ghost tables." Every visual referenced must be provided in diagramRequest.
-      4. **VISUAL SINGLE-SHOT**: One diagram per question. Comparison visuals MUST be consolidated into one diagram helper.
+      4. **VISUAL SINGLE-SHOT**: One diagram per question.
       
-      TEST STRUCTURE:
-      - RATIO: Exactly 8 single-choice. Exactly 2 others.
-      - LANGUAGE: Keep it encouraging and clear for a 5th grader.
-      
-      DIAGRAM SCHEMAS (REQUIRED PROPERTIES):
-      - coordinatePlane: { "helper": "coordinatePlane", "points": [{ "x": number, "y": number, "label": string }] }
-      - polygon: { "helper": "polygon", "points": [[x,y], [x,y], [x,y]] }
-      - barChart: { "helper": "barChart", "data": [{ "label": string, "value": number }], "yMax": number }
-      - fractionBox: { "helper": "fractionBox", "numerator": number, "denominator": number }
-      - numberLinePlot: { "helper": "numberLinePlot", "points": [{ "value": num, "count": num }], "minVal": num, "maxVal": num, "step": num }
-      - cubeStack: { "helper": "cubeStack", "width": num, "height": num, "depth": num }
+      DIVERSITY:
+      - Max 2 barCharts per test. 
+      - Mix coordinate planes, number lines, etc.
+      - Use random names (Alex, Sam, Taylor, Jordan). NO "Dafne".
+      - Standard field MUST be the code only (e.g. MA.5.NSO.1.1).
 
-      JSON FORMAT (STRICT):
+      SCHEMA:
       [
         {
-          "id": "DYNA-[unique-id]",
-          "standard": "The code only (e.g. MA.5.NSO.1.1)", 
+          "id": "string",
+          "standard": "string",
           "type": "single-choice" | "multiple-select" | "free-response",
-          "text": "A clear math story question. Use random names like Alex, Sam, Jordan, Taylor, etc. DO NOT use the name 'Dafne'.",
-          "options": ["Option 1", "Option 2", "Option 3", "Option 4"], 
-          "correctAnswer": "The exact string from the options list", 
-          "diagramRequest": { "helper": "...", ...REQUIRED_ARGS_LISTED_ABOVE },
-          "explanation": "Detailed step-by-step logic..."
+          "text": "string",
+          "options": ["string", "string", "string", "string"], 
+          "correctAnswer": "string", 
+          "diagramRequest": { "helper": "coordinatePlane" | "polygon" | "barChart" | "fractionBox" | "numberLinePlot" | "cubeStack", ...params },
+          "explanation": "string"
         }
       ]
-
-      FINAL STEP: Do not return incorrect math. If a fraction comparison is involved, verify it now: 2/5 = 0.4. 3/8 = 0.375. 3/8 is NOT greater than 2/5. DO NOT make this mistake.
       
       Respond ONLY with the JSON array.
     `.trim()
@@ -81,16 +72,17 @@ export async function POST() {
     const result = await model.generateContent(prompt)
     const responseText = result.response.text()
     
-    // Robust JSON extraction
-    const jsonMatch = responseText.match(/\[[\s\S]*\]/)
-    const cleanJson = jsonMatch ? jsonMatch[0] : responseText
+    // Robust cleanup before parsing
+    const cleanJson = responseText.substring(
+      responseText.indexOf('['),
+      responseText.lastIndexOf(']') + 1
+    )
     const rawQuestions = JSON.parse(cleanJson)
 
     // PROCESS DIAGRAMS
     const questions = rawQuestions.map((q: any) => {
       let diagram = null
       if (q.diagramRequest) {
-        console.log(`[GEN] Processing diagram for ${q.id}: ${q.diagramRequest.helper}`)
         const { helper, ...args } = q.diagramRequest
         let content = ''
         try {
@@ -102,16 +94,9 @@ export async function POST() {
           else if (helper === 'cubeStack') content = draw3DCubeStack(args.width, args.height, args.depth)
           
           if (content) {
-            console.log(`[GEN] Successfully generated SVG for ${q.id}`)
             diagram = { type: 'svg', content }
-          } else {
-            console.warn(`[GEN] Helper ${helper} returned empty content for ${q.id}`)
           }
-        } catch (e) {
-          console.error(`[GEN] Diagram gen failed for ${q.id}:`, e)
-        }
-      } else {
-        console.log(`[GEN] No diagram requested for ${q.id}`)
+        } catch (e) {}
       }
       return { ...q, diagram }
     })
