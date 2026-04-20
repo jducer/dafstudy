@@ -10,8 +10,21 @@ export async function POST(request: Request) {
     // en-US-AvaNeural is one of the most advanced, natural neural voices available
     await tts.setMetadata("en-US-AvaNeural", OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3)
 
-    // Split by sentences for natural phrasing and chunk-compatibility
-    const chunksRaw = text.match(/[^.!?]+[.!?]+/g) || [text]
+    // Sanitize text: Remove common markdown that the TTS shouldn't "read"
+    // (Stripping asterisks, hashtags, and cleaning up excessive whitespace)
+    const sanitizedText = text
+      .replace(/\*\*/g, '') // bold
+      .replace(/\*/g, '')  // bullet points/italics
+      .replace(/#/g, '')   // headers
+      .replace(/\[|\]/g, '') // brackets
+      .replace(/\n\n/g, '. ') // Turn double breaks into distinct sentence pauses
+      .replace(/\n/g, ' ')   // Turn single breaks into natural pauses/spaces
+      .replace(/\s+/g, ' ')  // Collapse whitespace
+      .trim()
+
+    // Split by sentences for natural phrasing and chunk-compatibility.
+    // Improved regex: matches sentences OR any remaining text without punctuation.
+    const chunksRaw = sanitizedText.match(/[^.!?]+[.!?]+|[^.!?]+/g) || [sanitizedText]
     const finalChunks = []
 
     for (const chunkText of chunksRaw) {
