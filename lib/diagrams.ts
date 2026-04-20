@@ -190,7 +190,14 @@ export function drawNumberLinePlot(points: { value: number; count: number }[], m
   const chartWidth = width - paddingX * 2
   
   const span = maxVal - minVal
-  const segments = span / step
+  // Clamp step to avoid too many segments
+  const rawSegments = span / step
+  const MAX_SEGMENTS = 20
+  let displayStep = step
+  if (rawSegments > MAX_SEGMENTS) {
+    displayStep = span / MAX_SEGMENTS
+  }
+  const segments = Math.round(span / displayStep)
   const segmentWidth = chartWidth / segments
 
   let line = `<line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX}" y2="${height - paddingY}" stroke="currentColor" stroke-width="2"/>`
@@ -199,9 +206,10 @@ export function drawNumberLinePlot(points: { value: number; count: number }[], m
 
   for (let i = 0; i <= segments; i++) {
     const x = paddingX + i * segmentWidth
-    const val = minVal + i * step
+    const val = minVal + i * displayStep
+    const roundedVal = Math.round(val * 1000) / 1000
     ticks += `<line x1="${x}" y1="${height - paddingY - 5}" x2="${x}" y2="${height - paddingY + 5}" stroke="currentColor" stroke-width="2"/>`
-    ticks += `<text x="${x}" y="${height - paddingY + 20}" fill="currentColor" font-size="12" text-anchor="middle" font-weight="bold">${val}</text>`
+    ticks += `<text x="${x}" y="${height - paddingY + 20}" fill="currentColor" font-size="11" text-anchor="middle" font-weight="bold">${roundedVal}</text>`
   }
 
   points.forEach((p) => {

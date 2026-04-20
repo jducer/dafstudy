@@ -5,6 +5,27 @@
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 
+/** Converts Sparky's markdown-ish output into clean HTML for rendering */
+function renderMarkdown(text: string): string {
+  return text
+    // Bold: **text** → <strong>text</strong>
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Remove lone asterisk bullets and replace with a proper emoji bullet
+    .replace(/^\* /gm, '🔹 ')
+    // Numbered lists: keep numbers but add a line break before each
+    .replace(/^(\d+\. )/gm, '<br><br>$1')
+    // Emoji bullets on their own line: add spacing before them
+    .replace(/^([🍎💎🚀🔹🎯✅❌🌟⭐🎈🍕🍭])/gm, '<br><br>$1')
+    // Double newlines → paragraph breaks
+    .replace(/\n\n/g, '<br><br>')
+    // Single newlines → line breaks
+    .replace(/\n/g, '<br>')
+    // Clean up any triple+ breaks
+    .replace(/(<br>){3,}/g, '<br><br>')
+    // Remove leading breaks
+    .replace(/^(<br>)+/, '')
+}
+
 interface QuestionAnswer {
   id: number
   testResultId: number
@@ -481,9 +502,10 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                       <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#9b5de5', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         🤖 Sparky says:
                       </div>
-                      <p style={{ color: 'var(--text-primary)', lineHeight: 1.6, fontSize: '0.95rem' }}>
-                        {hint.text}
-                      </p>
+                      <div 
+                        style={{ color: 'var(--text-primary)', lineHeight: 1.8, fontSize: '0.95rem' }}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(hint.text) }}
+                      />
                       {!shownAnswers[answer.id] && (
                         <button
                           onClick={() => askSparky(answer, false, true)}

@@ -17,6 +17,9 @@ export default function TestPage() {
   const [testStarted, setTestStarted] = useState(false)
   const [testMode, setTestMode] = useState<'static' | 'dynamic' | null>(null)
   const [generating, setGenerating] = useState(false)
+  const [hasSavedTest, setHasSavedTest] = useState(false)
+
+  const SESSION_KEY = 'dafstudy_in_progress_test'
 
   const QUESTIONS_PER_PAGE = 5
   const totalPages = Math.ceil(questions.length / QUESTIONS_PER_PAGE)
@@ -51,9 +54,35 @@ export default function TestPage() {
     }
   }
 
+  // Check for a saved in-progress test on mount
   useEffect(() => {
-    // We don't auto-start now, we wait for selection
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY)
+      if (saved) setHasSavedTest(true)
+    } catch {}
   }, [])
+
+  // Auto-save progress whenever answers change
+  useEffect(() => {
+    if (!testStarted || questions.length === 0) return
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ questions, answers, currentPage, testMode }))
+    } catch {}
+  }, [answers, currentPage, testStarted, questions, testMode])
+
+  const resumeSavedTest = () => {
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY)
+      if (!saved) return
+      const { questions: qs, answers: ans, currentPage: pg, testMode: mode } = JSON.parse(saved)
+      setQuestions(qs)
+      setAnswers(ans)
+      setCurrentPage(pg)
+      setTestMode(mode)
+      setTestStarted(true)
+      setHasSavedTest(false)
+    } catch {}
+  }
 
   const currentQuestions = questions.slice(
     currentPage * QUESTIONS_PER_PAGE,
@@ -134,6 +163,7 @@ export default function TestPage() {
       if (!res.ok) {
         throw new Error(data.details || 'Submission failed')
       }
+      sessionStorage.removeItem(SESSION_KEY)
       router.push(`/review/${data.id}`)
     } catch (e: any) {
       setError(e.message || 'Something went wrong. Please try again.')
@@ -145,9 +175,29 @@ export default function TestPage() {
 
   if (!testStarted && !generating) {
     return (
-      <div style={{ textAlign: 'center', padding: '120px 24px' }}>
+      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
         <div style={{ fontSize: '4rem', marginBottom: '24px' }}>🏁</div>
-        <h2 style={{ fontWeight: 900, fontSize: '1.8rem', marginBottom: '16px' }}>Ready to Start?</h2>
+        <h2 style={{ fontWeight: 900, fontSize: '1.8rem', marginBottom: '24px' }}>Ready to Start?</h2>
+
+        {hasSavedTest && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(255,209,102,0.15), rgba(255,209,102,0.05))',
+            border: '1px solid rgba(255,209,102,0.4)',
+            borderRadius: '16px',
+            padding: '20px 28px',
+            marginBottom: '24px',
+            maxWidth: '420px',
+            margin: '0 auto 24px',
+          }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>⏸️</div>
+            <div style={{ fontWeight: 800, fontSize: '1rem', color: '#ffd166', marginBottom: '6px' }}>You have an unfinished test!</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '14px' }}>Pick up right where you left off.</div>
+            <button className="btn-primary" onClick={resumeSavedTest} style={{ padding: '12px 28px', fontSize: '1rem', background: 'linear-gradient(135deg, #ffd166, #f9a825)' }}>
+              ▶️ Resume My Test
+            </button>
+          </div>
+        )}
+
         <button className="btn-primary" onClick={startDynamicTest} style={{ padding: '16px 32px', fontSize: '1.1rem' }}>
           🚀 Start Your AI Math Challenge
         </button>
@@ -161,7 +211,7 @@ export default function TestPage() {
       <div style={{ textAlign: 'center', padding: '120px 24px' }}>
         <div style={{ fontSize: '4rem', marginBottom: '24px', animation: 'bounce 2s infinite' }}>🤖</div>
         <h2 style={{ fontWeight: 900, fontSize: '1.8rem', marginBottom: '8px' }}>Sparky is crafting your test...</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>This takes about 10 seconds. Get ready!</p>
+        <p style={{ color: 'var(--text-secondary)' }}>This takes about 30 seconds. Get ready!</p>
       </div>
     )
   }
